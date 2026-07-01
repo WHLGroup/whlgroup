@@ -14,7 +14,7 @@ export default function Footer({ setActiveTab, onQuoteRequest, onAdminClick }: F
 
   return (
     <footer className="bg-neutral-950 border-t border-neutral-900 text-white pt-16 pb-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
+      <div className="mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12 space-y-12">
         
         {/* Upper Grid columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -84,15 +84,15 @@ export default function Footer({ setActiveTab, onQuoteRequest, onAdminClick }: F
 
           {/* Malawi Central Branch Contacts */}
           <div className="space-y-4">
-            <h4 className="font-extrabold text-sm uppercase text-neutral-300 tracking-wider">Central HQ Branch</h4>
+            <h4 className="font-extrabold text-sm uppercase text-neutral-300 tracking-wider">WHL Head Office</h4>
             <div className="space-y-3 text-xs text-neutral-400">
               <div className="flex gap-2.5 items-start">
                 <MapPin className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
-                <span>Plot 47/312, Kanengo Bypass, Lilongwe, Malawi</span>
+                <span>Makata Industrial Area, P.O. Box 3140, Blantyre, Malawi</span>
               </div>
               <div className="flex gap-2.5 items-center">
                 <Phone className="w-4 h-4 text-blue-500 shrink-0" />
-                <span className="text-white font-bold">0991 807 100 / 0884 985 461</span>
+                <span className="text-white font-bold">0884 985 461 / 0991 807 100</span>
               </div>
               <div className="flex gap-2.5 items-center">
                 <Mail className="w-4 h-4 text-blue-500 shrink-0" />

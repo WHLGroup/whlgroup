@@ -106,10 +106,10 @@ export default function Projects() {
 
   return (
     <div className="bg-black text-white min-h-screen py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12">
         
         {/* Title and Intro */}
-        <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+        <div className="text-center max-w-5xl mx-auto mb-16 space-y-4">
           <span className="text-xs uppercase font-extrabold tracking-widest text-blue-500 bg-blue-500/10 px-4 py-1.5 rounded-full inline-block">
             Project Showcase
           </span>

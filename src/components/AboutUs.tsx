@@ -63,7 +63,7 @@ export default function AboutUs({ certificates }: AboutUsProps) {
 
   return (
     <div className="bg-black text-white min-h-screen py-16">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-24">
+      <div className="mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12 space-y-24">
         
         {/* Core Profile Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -93,8 +93,8 @@ export default function AboutUs({ certificates }: AboutUsProps) {
             <div className="absolute bottom-6 left-6 right-6 bg-black/60 backdrop-blur-md border border-neutral-800 rounded-2xl p-4 flex gap-4 items-center">
               <span className="text-4xl">🇲🇼</span>
               <div>
-                <h4 className="font-bold text-sm">WHL Malawi Headquarters</h4>
-                <p className="text-xs text-neutral-400">Serving Central, Southern & Northern Regions</p>
+                <h4 className="font-bold text-sm">WHL Blantyre Head Office</h4>
+                <p className="text-xs text-neutral-400">P.O. Box 3140 | Serving Malawi Nationwide</p>
               </div>
             </div>
           </div>
@@ -102,7 +102,7 @@ export default function AboutUs({ certificates }: AboutUsProps) {
 
         {/* Core Values grid */}
         <div className="space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
+          <div className="text-center max-w-4xl mx-auto space-y-3">
             <span className="text-xs uppercase font-extrabold tracking-widest text-blue-500">How We Operate</span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Our Foundations of Excellence</h3>
             <p className="text-xs sm:text-sm text-neutral-400">
@@ -128,7 +128,7 @@ export default function AboutUs({ certificates }: AboutUsProps) {
 
         {/* Leadership Team section */}
         <div className="space-y-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
+          <div className="text-center max-w-4xl mx-auto space-y-3">
             <span className="text-xs uppercase font-extrabold tracking-widest text-blue-500 font-bold">WHL Leadership</span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">The Brains Behind the Power</h3>
             <p className="text-xs sm:text-sm text-neutral-400">
@@ -183,7 +183,7 @@ export default function AboutUs({ certificates }: AboutUsProps) {
             <MessageSquareQuote className="w-24 h-24" />
           </div>
 
-          <div className="relative z-10 max-w-3xl mx-auto space-y-6 text-center">
+          <div className="relative z-10 max-w-5xl mx-auto space-y-6 text-center">
             <span className="text-xs uppercase font-extrabold tracking-widest text-blue-500">Client Reviews</span>
             <h3 className="text-2xl sm:text-3xl font-bold">Trusted by Malawian Enterprises</h3>
             
@@ -232,7 +232,7 @@ export default function AboutUs({ certificates }: AboutUsProps) {
 
         {/* Regulatory & MERA Certifications section */}
         <div className="space-y-12 pb-12">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
+          <div className="text-center max-w-4xl mx-auto space-y-3">
             <span className="text-xs uppercase font-extrabold tracking-widest text-blue-500">Verification</span>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Regulatory Compliance</h3>
             <p className="text-xs sm:text-sm text-neutral-400">

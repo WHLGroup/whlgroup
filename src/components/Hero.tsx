@@ -36,8 +36,8 @@ export default function Hero({ onExploreServices, onShopNow }: HeroProps) {
       </div>
 
       {/* Main Content Area */}
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 md:pt-24 pb-8 w-full flex-1 flex flex-col justify-center">
-        <div className="max-w-2xl space-y-6">
+      <div className="relative z-10 mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12 pt-16 md:pt-24 pb-8 w-full flex-1 flex flex-col justify-center">
+        <div className="max-w-4xl space-y-6">
           
           {/* Subheading */}
           <span className="text-xs md:text-sm font-bold uppercase tracking-[0.25em] text-blue-500 block animate-fade-in">
@@ -103,7 +103,7 @@ export default function Hero({ onExploreServices, onShopNow }: HeroProps) {
 
       {/* Stats / Key Metrics Footer Row (Matching bottom part of the image) */}
       <div className="relative z-10 bg-neutral-950/90 border-t border-neutral-900 py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 text-center lg:text-left divide-y md:divide-y-0 lg:divide-x divide-neutral-900">
             {metrics.map((metric, idx) => (
               <div key={idx} className="flex flex-col md:pl-8 first:pl-0 pt-6 md:pt-0 first:pt-0">
