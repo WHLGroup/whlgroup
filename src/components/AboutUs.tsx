@@ -139,10 +139,10 @@ export default function AboutUs({ certificates }: AboutUsProps) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
               {
-                name: 'Kondwani Banda',
+                name: 'Wonderful Brown Kaliati',
                 role: 'Chief Executive Officer',
                 image: 'https://images.pexels.com/photos/8986038/pexels-photo-8986038.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
-                bio: '15+ years managing utility setups. Pioneer in domestic solar installation regulations.'
+                bio: '15+ years managing utility setups. Pioneer in domestic Eletrical and solar installation regulations.'
               },
               {
                 name: 'Dr. Tamara Phiri',
