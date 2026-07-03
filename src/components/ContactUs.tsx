@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Mail, Phone, MapPin, Send, HelpCircle, ChevronDown, CheckCircle2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, MapPin, Send, HelpCircle, ChevronDown, CheckCircle2, Phone } from 'lucide-react';
+import { getFlagFromCode } from '../utils/flags';
 
 interface ContactUsProps {
   onQuoteRequest: () => void;
@@ -9,7 +10,7 @@ export default function ContactUs({ onQuoteRequest }: ContactUsProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
+    phone: '+',
     subject: 'Electrical Inquiry',
     message: ''
   });
@@ -243,14 +244,26 @@ export default function ContactUs({ onQuoteRequest }: ContactUsProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-neutral-400 uppercase mb-1.5 block">Phone Contact</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="e.g. 0991 807 100"
-                      className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500"
-                    />
+                    <div className="relative flex items-center">
+                      <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
+                        <span className="text-lg leading-none">{getFlagFromCode(formData.phone)}</span>
+                        <div className="w-px h-4 bg-neutral-800" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        pattern="^\+.*"
+                        title="Phone number must start with a country code (e.g. +265)"
+                        value={formData.phone}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === '' || val === '+') setFormData({ ...formData, phone: '+' });
+                          else if (val.startsWith('+')) setFormData({ ...formData, phone: val });
+                        }}
+                        placeholder="+265..."
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-xl pl-16 pr-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono tracking-wider"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-neutral-400 uppercase mb-1.5 block">Sector Focus</label>

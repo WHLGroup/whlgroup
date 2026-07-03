@@ -13,6 +13,9 @@ import CartDrawer, { CartItem } from './components/CartDrawer';
 import Footer from './components/Footer';
 import AdminPortal from './components/AdminPortal';
 import SearchOverlay from './components/SearchOverlay';
+import AuthModal from './components/AuthModal';
+import UserDashboard from './components/UserDashboard';
+import { supabase } from './lib/supabase';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('home');
@@ -21,90 +24,145 @@ export default function App() {
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
 
-  // Live Data State for Admin
+  // Central Dynamic Data State
   const [orders, setOrders] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
-  const [certificates, setCertificates] = useState<any[]>([
-    {
-      id: 'cert-1',
-      title: 'MERA Electrical Installation License',
-      type: 'Class A',
-      issued: '2025-01-10',
-      expiry: '2026-01-10',
-      status: 'Active',
-      imageUrl: '/images/cert-mera.jpg'
-    },
-    {
-      id: 'cert-2',
-      title: 'MRA Tax Compliance Certificate',
-      type: 'Corporate Tax',
-      issued: '2025-01-01',
-      expiry: '2026-01-01',
-      status: 'Active',
-      imageUrl: '/images/cert-mra.jpg'
-    },
-    {
-      id: 'cert-3',
-      title: 'CRIPC Business Registration',
-      type: 'Intellectual Property',
-      issued: '2024-05-15',
-      expiry: '2029-05-15',
-      status: 'Active',
-      imageUrl: '/images/cert-cripc.jpg'
-    },
-    {
-      id: 'cert-4',
-      title: 'NICC Communications License',
-      type: 'Electronic Security',
-      issued: '2025-02-20',
-      expiry: '2027-02-20',
-      status: 'Active',
-      imageUrl: '/images/cert-nicc.jpg'
-    },
-    {
-      id: 'cert-5',
-      title: 'RBM Financial Services Authority',
-      type: 'Microfinance License',
-      issued: '2024-11-05',
-      expiry: '2026-11-05',
-      status: 'Active',
-      imageUrl: '/images/cert-rbm.jpg'
-    }
-  ]);
+  const [products, setProducts] = useState<any[]>([]); 
+  const [projects, setProjects] = useState<any[]>([]);
+  const [leadership, setLeadership] = useState<any[]>([]); 
+  const [testimonials, setTestimonials] = useState<any[]>([]); 
+  const [certificates, setCertificates] = useState<any[]>([]); 
 
-  const handleAddCertificate = (cert: any) => {
-    setCertificates(prev => [cert, ...prev]);
+  // Initial Fetch from Supabase
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: prods } = await supabase.from('products').select('*');
+      if (prods) setProducts(prods);
+      
+      const { data: projs } = await supabase.from('projects').select('*');
+      if (projs) setProjects(projs);
+
+      const { data: leads } = await supabase.from('leadership').select('*');
+      if (leads) setLeadership(leads);
+
+      const { data: tests } = await supabase.from('testimonials').select('*');
+      if (tests) setTestimonials(tests);
+
+      const { data: certs } = await supabase.from('certificates').select('*');
+      if (certs) setCertificates(certs);
+
+      const { data: ords } = await supabase.from('orders').select('*');
+      if (ords) setOrders(ords);
+
+      const { data: qts } = await supabase.from('quotes').select('*');
+      if (qts) setQuotes(qts);
+    };
+    fetchData();
+  }, []);
+
+  // Real-Time Content Handlers using Supabase
+  const handleAddProduct = async (p: any) => {
+    const { error } = await supabase.from('products').insert([p]);
+    if (!error) setProducts(prev => [p, ...prev]);
+  };
+  const handleRemoveProduct = async (id: string) => {
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    if (!error) setProducts(prev => prev.filter(p => p.id !== id));
+  };
+  
+  const handleAddProject = async (p: any) => {
+    const { error } = await supabase.from('projects').insert([p]);
+    if (!error) setProjects(prev => [p, ...prev]);
+  };
+  const handleRemoveProject = async (id: string) => {
+    const { error } = await supabase.from('projects').delete().eq('id', id);
+    if (!error) setProjects(prev => prev.filter(p => p.id !== id));
   };
 
-  const handleRemoveCertificate = (id: string) => {
-    setCertificates(prev => prev.filter(c => c.id !== id));
+  const handleAddLeadership = async (m: any) => {
+    const { error } = await supabase.from('leadership').insert([m]);
+    if (!error) setLeadership(prev => [m, ...prev]);
+  };
+  const handleRemoveLeadership = async (id: string) => {
+    const { error } = await supabase.from('leadership').delete().eq('id', id);
+    if (!error) setLeadership(prev => prev.filter(m => m.id !== id));
   };
 
-  const handleEditCertificate = (updatedCert: any) => {
-    setCertificates(prev => prev.map(c => c.id === updatedCert.id ? updatedCert : c));
+  const handleAddTestimonial = async (t: any) => {
+    const { error } = await supabase.from('testimonials').insert([t]);
+    if (!error) setTestimonials(prev => [t, ...prev]);
+  };
+  const handleApproveTestimonial = async (id: string) => {
+    const { error } = await supabase.from('testimonials').update({ approved: true }).eq('id', id);
+    if (!error) setTestimonials(prev => prev.map(t => t.id === id ? {...t, approved: true} : t));
+  };
+  const handleRemoveTestimonial = async (id: string) => {
+    const { error } = await supabase.from('testimonials').delete().eq('id', id);
+    if (!error) setTestimonials(prev => prev.filter(t => t.id !== id));
   };
 
-  const handleAddOrder = (order: any) => {
-    setOrders(prev => [order, ...prev]);
+  const handleAddCertificate = async (cert: any) => {
+    const { error } = await supabase.from('certificates').insert([cert]);
+    if (!error) setCertificates(prev => [cert, ...prev]);
+  };
+  const handleRemoveCertificate = async (id: string) => {
+    const { error } = await supabase.from('certificates').delete().eq('id', id);
+    if (!error) setCertificates(prev => prev.filter(c => c.id !== id));
+  };
+  const handleEditCertificate = async (updatedCert: any) => {
+    const { error } = await supabase.from('certificates').update(updatedCert).eq('id', updatedCert.id);
+    if (!error) setCertificates(prev => prev.map(c => c.id === updatedCert.id ? updatedCert : c));
   };
 
-  const handleAddQuote = (quote: any) => {
-    setQuotes(prev => [quote, ...prev]);
+  const handleAddOrder = async (order: any) => {
+    const { error } = await supabase.from('orders').insert([order]);
+    if (!error) setOrders(prev => [order, ...prev]);
+  };
+  const handleAddQuote = async (quote: any) => {
+    const { error } = await supabase.from('quotes').insert([quote]);
+    if (!error) setQuotes(prev => [quote, ...prev]);
+  };
+  const handleUpdateOrderStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from('orders').update({ status }).eq('id', id);
+    if (!error) setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+  };
+  const handleUpdateQuoteStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from('quotes').update({ status }).eq('id', id);
+    if (!error) setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
   };
 
-  const handleUpdateOrderStatus = (id: string, status: string) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
-  };
-
-  const handleUpdateQuoteStatus = (id: string, status: string) => {
-    setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
-  };
-
-  // Auto-scroll to top upon tab changing
+  // Auto-scroll to top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
+
+  // Hidden Keyboard Listener for Admin Access
+  useEffect(() => {
+    let keys = '';
+    const secret = 'whladmin';
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 1. Check for Ctrl + Alt + A shortcut
+      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        setIsAdminOpen(true);
+        return;
+      }
+
+      // 2. Check for "whladmin" typing sequence
+      keys += e.key.toLowerCase();
+      if (keys.length > 20) keys = keys.substring(keys.length - 20);
+      if (keys.endsWith(secret)) {
+        setIsAdminOpen(true);
+        keys = '';
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Cart operations
   const handleAddToCart = (newItem: Omit<CartItem, 'quantity'>) => {
@@ -142,7 +200,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white selection:bg-blue-600 selection:text-white flex flex-col justify-between">
       
-      {/* Sticky Header and Navigation */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -150,17 +207,40 @@ export default function App() {
         onCartClick={() => setIsCartOpen(true)}
         onQuoteClick={() => setIsQuoteOpen(true)}
         onSearchClick={() => setIsSearchOpen(true)}
+        currentUser={currentUser}
+        onAccountClick={() => {
+          if (currentUser) setIsDashboardOpen(true);
+          else setIsAuthOpen(true);
+        }}
       />
 
-      {/* Main Page Rendering */}
       <main className="flex-1">
-        {activeTab === 'home' && (
-          <Hero
-            onExploreServices={() => setActiveTab('electrical')}
-            onShopNow={() => setActiveTab('shop')}
+        {isDashboardOpen && currentUser ? (
+          <UserDashboard 
+            user={currentUser} 
+            orders={orders} 
+            onLogout={() => {
+              setCurrentUser(null);
+              setIsDashboardOpen(false);
+            }} 
+            onContinueShopping={() => setIsDashboardOpen(false)}
+          />
+        ) : (
+          <>
+            {activeTab === 'home' && (
+              <Hero
+                onExploreServices={() => setActiveTab('electrical')}
+                onShopNow={() => setActiveTab('shop')}
+              />
+            )}
+        {activeTab === 'about' && (
+          <AboutUs 
+            certificates={certificates} 
+            testimonials={testimonials} 
+            onAddTestimonial={handleAddTestimonial}
+            leadership={leadership}
           />
         )}
-        {activeTab === 'about' && <AboutUs certificates={certificates} />}
         {activeTab === 'electrical' && (
           <ElectricalServices onQuoteRequest={() => setIsQuoteOpen(true)} />
         )}
@@ -171,22 +251,25 @@ export default function App() {
           <Microfinance onQuoteRequest={() => setIsQuoteOpen(true)} />
         )}
         {activeTab === 'shop' && (
-          <Shop onAddToCart={handleAddToCart} cart={cart} />
+          <Shop onAddToCart={handleAddToCart} cart={cart} products={products} />
         )}
-        {activeTab === 'projects' && <Projects />}
+        {activeTab === 'projects' && (
+          <Projects projects={projects} />
+        )}
         {activeTab === 'contact' && (
           <ContactUs onQuoteRequest={() => setIsQuoteOpen(true)} />
         )}
+          </>
+        )}
       </main>
 
-      {/* Persistent Multi-section Footer */}
       <Footer 
         setActiveTab={setActiveTab} 
         onQuoteRequest={() => setIsQuoteOpen(true)} 
         onAdminClick={() => setIsAdminOpen(true)}
       />
 
-      {/* Modals & Sliding Drawers */}
+      {/* Admin Portal Modal */}
       <AdminPortal 
         isOpen={isAdminOpen} 
         onClose={() => setIsAdminOpen(false)} 
@@ -198,6 +281,28 @@ export default function App() {
         onEditCert={handleEditCertificate}
         onUpdateOrderStatus={handleUpdateOrderStatus}
         onUpdateQuoteStatus={handleUpdateQuoteStatus}
+        products={products}
+        onAddProduct={handleAddProduct}
+        onRemoveProduct={handleRemoveProduct}
+        projects={projects}
+        onAddProject={handleAddProject}
+        onRemoveProject={handleRemoveProject}
+        testimonials={testimonials}
+        onApproveTestimonial={handleApproveTestimonial}
+        onRemoveTestimonial={handleRemoveTestimonial}
+        leadership={leadership}
+        onAddLeadership={handleAddLeadership}
+        onRemoveLeadership={handleRemoveLeadership}
+      />
+
+      <AuthModal 
+        isOpen={isAuthOpen} 
+        onClose={() => setIsAuthOpen(false)} 
+        onLogin={(user) => {
+          setCurrentUser(user);
+          setIsAuthOpen(false);
+          setIsDashboardOpen(true);
+        }}
       />
 
       <SearchOverlay 

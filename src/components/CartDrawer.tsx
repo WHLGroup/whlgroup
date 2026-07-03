@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Trash2, ShoppingBag, Plus, Minus, CheckCircle, ArrowRight } from 'lucide-react';
+import { getFlagFromCode } from '../utils/flags';
 
 export interface CartItem {
   id: string;
@@ -31,7 +32,7 @@ export default function CartDrawer({
   const [checkoutStep, setCheckoutStep] = useState<'cart' | 'shipping' | 'payment' | 'complete'>('cart');
   const [shippingInfo, setShippingInfo] = useState({
     name: '',
-    phone: '',
+    phone: '+',
     address: '',
     city: 'Lilongwe'
   });
@@ -213,14 +214,26 @@ export default function CartDrawer({
 
               <div>
                 <label className="block text-xs uppercase tracking-wider font-semibold text-neutral-400 mb-2">Phone Number</label>
-                <input
-                  type="text"
-                  required
-                  value={shippingInfo.phone}
-                  onChange={(e) => setShippingInfo({ ...shippingInfo, phone: e.target.value })}
-                  placeholder="e.g. 0991 807 100"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition text-sm"
-                />
+                <div className="relative flex items-center">
+                  <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
+                    <span className="text-lg leading-none">{getFlagFromCode(shippingInfo.phone)}</span>
+                    <div className="w-px h-4 bg-neutral-800" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    pattern="^\+.*"
+                    title="Phone number must start with a country code (e.g. +265)"
+                    value={shippingInfo.phone}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || val === '+') setShippingInfo({ ...shippingInfo, phone: '+' });
+                      else if (val.startsWith('+')) setShippingInfo({ ...shippingInfo, phone: val });
+                    }}
+                    placeholder="+265..."
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-16 pr-4 py-2.5 text-white focus:outline-none focus:border-blue-500 transition text-sm font-mono tracking-wider"
+                  />
+                </div>
               </div>
 
               <div>

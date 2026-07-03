@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   ShoppingBag, 
   FileText, 
   CheckCircle, 
-  Search, 
   Eye, 
   X, 
   ArrowLeft,
   Package,
-  Download,
   Plus,
+  Trash2,
   Edit2,
-  Trash2
+  LayoutGrid,
+  MessageSquareQuote,
+  Users,
+  Download,
+  Loader2
 } from 'lucide-react';
+import { uploadFile } from '../lib/supabase';
 
 interface AdminPortalProps {
   isOpen: boolean;
@@ -25,389 +29,350 @@ interface AdminPortalProps {
   onEditCert: (cert: any) => void;
   onUpdateOrderStatus: (id: string, status: string) => void;
   onUpdateQuoteStatus: (id: string, status: string) => void;
+  products: any[];
+  onAddProduct: (p: any) => void;
+  onRemoveProduct: (id: string) => void;
+  projects: any[];
+  onAddProject: (p: any) => void;
+  onRemoveProject: (id: string) => void;
+  testimonials: any[];
+  onApproveTestimonial: (id: string) => void;
+  onRemoveTestimonial: (id: string) => void;
+  leadership: any[];
+  onAddLeadership: (m: any) => void;
+  onRemoveLeadership: (id: string) => void;
 }
 
+/**
+ * Reusable Image Upload Component for the Admin Forms
+ */
+const ImageUploadField = ({ onUpload, label, folder }: { onUpload: (url: string) => void, label: string, folder: string }) => {
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const url = await uploadFile(file, 'whl-assets', folder);
+    setUploading(false);
+
+    if (url) onUpload(url);
+    else alert('Upload failed. Check console.');
+  };
+
+  return (
+    <div className="space-y-2">
+      <label className="text-[10px] uppercase font-bold text-neutral-500">{label}</label>
+      <div className="relative h-12 bg-black border border-neutral-800 rounded-xl overflow-hidden group hover:border-blue-500 transition-all flex items-center px-4">
+        {uploading ? (
+          <div className="flex items-center gap-2 text-blue-500">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Uploading to Cloud...</span>
+          </div>
+        ) : (
+          <>
+            <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+            <div className="flex items-center gap-2 text-neutral-400 group-hover:text-white transition-colors">
+              <Plus className="w-4 h-4" />
+              <span className="text-[10px] font-bold uppercase tracking-widest">Upload Image Asset</span>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function AdminPortal({ 
-  isOpen, onClose, orders, quotes, certificates, onAddCert, onRemoveCert, onEditCert, onUpdateOrderStatus, onUpdateQuoteStatus 
+  isOpen, onClose, 
+  orders = [], quotes = [], certificates = [], onAddCert, onRemoveCert, onEditCert, onUpdateOrderStatus, onUpdateQuoteStatus,
+  products = [], onAddProduct, onRemoveProduct,
+  projects = [], onAddProject, onRemoveProject,
+  testimonials = [], onApproveTestimonial, onRemoveTestimonial,
+  leadership = [], onAddLeadership, onRemoveLeadership
 }: AdminPortalProps) {
-  const [activeTab, setActiveTab] = useState<'orders' | 'quotes' | 'inventory' | 'certificates'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'quotes' | 'inventory' | 'certificates' | 'projects' | 'feedback' | 'leadership'>('orders');
+  const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginError, setLoginError] = useState('');
+
+  // Form States
   const [newCert, setNewCert] = useState({ title: '', type: '', issued: '', expiry: '', imageUrl: '' });
   const [isAddingCert, setIsAddingCert] = useState(false);
   const [editingCertId, setEditingCertId] = useState<string | null>(null);
+  const [newProduct, setNewProduct] = useState({ name: '', category: 'Solar Power', price: 0, image: '', description: '' });
+  const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [newProject, setNewProject] = useState({ title: '', category: 'Solar Clean Energy', location: '', date: '', image: '', description: '' });
+  const [isAddingProject, setIsAddingProject] = useState(false);
+  const [newMember, setNewMember] = useState({ name: '', role: '', image: '', bio: '' });
+  const [isAddingMember, setIsAddingMember] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [password, setPassword] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [error, setError] = useState('');
-
-  if (!isOpen) return null;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple secure password for WHL GROUP Management
     if (password === 'WHL2026') {
       setIsAuthenticated(true);
-      setError('');
+      setLoginError('');
     } else {
-      setError('Invalid Management Credentials');
+      setLoginError('Incorrect Management Password');
       setPassword('');
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     setIsAuthenticated(false);
     setPassword('');
     onClose();
-  };
+  }, [onClose]);
 
-  // Login Screen UI
+  if (!isOpen) return null;
+
+  // Render Login Screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="fixed inset-0 z-[70] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-2xl animate-scale-up">
+      <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-neutral-900 border border-neutral-800 rounded-3xl p-8 shadow-3xl animate-scale-up">
           <div className="text-center space-y-4 mb-8">
             <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center italic font-bold text-2xl mx-auto shadow-lg shadow-blue-500/20">⚡</div>
-            <div>
-              <h2 className="text-2xl font-black text-white">Management Portal</h2>
-              <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold mt-1">Authorized WHL Staff Only</p>
-            </div>
+            <h2 className="text-2xl font-black text-white uppercase tracking-tighter">WHL Portal</h2>
+            <p className="text-[10px] text-neutral-500 uppercase font-black tracking-[0.2em]">Authorized Access Required</p>
           </div>
-
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-[10px] uppercase font-bold text-neutral-500 mb-2">Access Password</label>
+            <div className="space-y-2">
               <input 
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition"
+                type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter Password"
+                className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-4 text-center text-sm text-white focus:border-blue-500 outline-none transition-all"
               />
-              {error && <p className="text-red-500 text-[10px] mt-2 font-bold">{error}</p>}
+              {loginError && <p className="text-red-500 text-[10px] font-bold text-center animate-pulse uppercase tracking-wider">{loginError}</p>}
             </div>
-            
-            <button 
-              type="submit"
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20"
-            >
-              Sign In to Dashboard
-            </button>
-            
-            <button 
-              type="button"
-              onClick={onClose}
-              className="w-full py-3 text-neutral-500 hover:text-white text-xs font-bold transition"
-            >
-              Return to Website
-            </button>
+            <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition shadow-xl shadow-blue-600/20">Access Dashboard</button>
+            <button type="button" onClick={onClose} className="w-full py-2 text-neutral-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition">Cancel</button>
           </form>
         </div>
       </div>
     );
   }
 
-
-
-
-
   return (
-    <div className="fixed inset-0 z-[60] bg-neutral-950 flex flex-col md:flex-row overflow-hidden text-white">
-      
-      {/* Sidebar - Responsive (Hidden on mobile, or toggleable) */}
-      <div className="w-full md:w-64 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col shrink-0 overflow-y-auto">
-        <div className="p-6 border-b border-neutral-800 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center italic font-bold">⚡</div>
-            <span className="font-black text-sm tracking-widest">WHL ADMIN</span>
-          </div>
-          <button onClick={onClose} className="md:hidden p-2 text-neutral-400">
-            <X className="w-5 h-5" />
-          </button>
+    <div className="fixed inset-0 z-[60] bg-neutral-950 flex flex-col md:flex-row overflow-hidden text-white animate-fade-in">
+      {/* Sidebar */}
+      <div className="w-full md:w-64 bg-neutral-900 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col shrink-0 overflow-y-auto custom-scrollbar">
+        <div className="p-6 border-b border-neutral-800 flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center italic font-bold shadow-lg">⚡</div>
+          <span className="font-black text-sm tracking-widest uppercase">WHL Ops</span>
         </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          <button 
-            onClick={() => setActiveTab('orders')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'orders' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:bg-neutral-800'}`}
-          >
-            <ShoppingBag className="w-4 h-4" /> Orders & POP
-          </button>
-          <button 
-            onClick={() => setActiveTab('quotes')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'quotes' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:bg-neutral-800'}`}
-          >
-            <FileText className="w-4 h-4" /> Service Quotes
-          </button>
-          <button 
-            onClick={() => setActiveTab('inventory')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'inventory' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:bg-neutral-800'}`}
-          >
-            <Package className="w-4 h-4" /> Shop Inventory
-          </button>
-          <button 
-            onClick={() => setActiveTab('certificates')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition ${activeTab === 'certificates' ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:bg-neutral-800'}`}
-          >
-            <CheckCircle className="w-4 h-4" /> MERA Certs
-          </button>
+        <nav className="flex-1 p-4 space-y-1">
+          {[
+            { id: 'orders', label: 'Orders & POP', icon: ShoppingBag },
+            { id: 'quotes', label: 'Service Quotes', icon: FileText },
+            { id: 'inventory', label: 'Shop Inventory', icon: Package },
+            { id: 'projects', label: 'Projects Hub', icon: LayoutGrid },
+            { id: 'leadership', label: 'Team Leaders', icon: Users },
+            { id: 'certificates', label: 'Compliance', icon: CheckCircle },
+            { id: 'feedback', label: 'User Feedback', icon: MessageSquareQuote },
+          ].map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button 
+                key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-wider transition ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-lg' : 'text-neutral-500 hover:bg-neutral-800'}`}
+              >
+                <Icon className="w-4 h-4" /> {tab.label}
+              </button>
+            );
+          })}
         </nav>
-
-        <div className="p-4 mt-auto border-t border-neutral-800">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-red-500 hover:bg-red-500/10 transition">
-            <ArrowLeft className="w-4 h-4" /> Exit Portal
+        <div className="p-4 border-t border-neutral-800">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-red-500 hover:bg-red-500/10 transition duration-300">
+            <ArrowLeft className="w-4 h-4" /> Sign Out
           </button>
         </div>
       </div>
 
-      {/* Main Content Area - Scroll Responsive */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-black">
-        
-        {/* Top Header Stats */}
-        <header className="p-6 md:p-8 bg-neutral-900/50 border-b border-neutral-900 shrink-0">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-black text-white">Management Dashboard</h2>
-              <p className="text-xs text-neutral-500 uppercase tracking-widest font-bold mt-1">WHL GROUP OPERATIONS HUB</p>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="bg-neutral-900 border border-neutral-800 p-3 rounded-xl text-center min-w-[100px]">
-                <span className="text-blue-500 block font-black text-lg">12</span>
-                <span className="text-[10px] text-neutral-500 uppercase font-bold">New Orders</span>
-              </div>
-              <div className="bg-neutral-900 border border-neutral-800 p-3 rounded-xl text-center min-w-[100px]">
-                <span className="text-emerald-500 block font-black text-lg">5</span>
-                <span className="text-[10px] text-neutral-500 uppercase font-bold">Unverified POP</span>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Dynamic Body - THIS SECTION SCROLLS */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 min-h-0 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 md:p-10 min-h-0 custom-scrollbar space-y-10">
           
+          {/* ORDERS TAB */}
           {activeTab === 'orders' && (
             <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h3 className="text-lg font-bold">Recent Orders & Bank Payments</h3>
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
-                  <input 
-                    type="text" 
-                    placeholder="Search Order ID or Customer..."
-                    className="bg-neutral-900 border border-neutral-800 rounded-lg pl-10 pr-4 py-2 text-xs focus:outline-none focus:border-blue-500 w-full md:w-64"
-                  />
-                </div>
-              </div>
-
-              {/* Table Wrapper for Horizontal Scroll on Mobile */}
-              <div className="bg-neutral-950 border border-neutral-900 rounded-2xl overflow-x-auto shadow-2xl">
+              <h3 className="text-xl font-black uppercase tracking-widest text-white">Client Orders</h3>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-neutral-900 bg-neutral-900/30">
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Order ID</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Customer</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Amount</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Verification</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Action</th>
-                    </tr>
+                  <thead className="bg-neutral-800/50 border-b border-neutral-800">
+                    <tr><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Order ID</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Customer</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500 text-center">Verify</th></tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-900">
-                    {orders.map((order) => (
-                      <tr key={order.id} className="hover:bg-neutral-900/40 transition">
-                        <td className="px-6 py-4 font-mono font-bold text-blue-500">{order.id}</td>
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-white">{order.customer}</div>
-                          <div className="text-[10px] text-neutral-500">{order.date}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="font-bold text-white leading-none">${order.total.toFixed(2)}</div>
-                          <div className="text-[10px] text-neutral-500 mt-1 uppercase font-bold">MK {(order.total * 2500).toLocaleString()}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${order.status === 'Verified' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                            {order.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button 
-                            onClick={() => setSelectedOrder(order)}
-                            className="p-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-blue-500 transition"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody className="divide-y divide-neutral-800/50">
+                    {orders.length === 0 ? (
+                       <tr><td colSpan={3} className="px-6 py-20 text-center text-neutral-600 font-bold">No active orders.</td></tr>
+                    ) : (
+                      orders.map(o => (
+                        <tr key={o.id} className="hover:bg-blue-600/5 transition-colors group">
+                          <td className="px-6 py-4 font-mono font-bold text-blue-500">{o.id}</td>
+                          <td className="px-6 py-4 font-bold text-neutral-200">{o.customer}</td>
+                          <td className="px-6 py-4 text-center">
+                            <button onClick={() => setSelectedOrder(o)} className="p-2.5 bg-neutral-800 group-hover:bg-blue-600 rounded-xl transition-all transform group-hover:scale-110">
+                              <Eye className="w-4 h-4 text-white" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
             </div>
           )}
 
+          {/* QUOTES TAB */}
           {activeTab === 'quotes' && (
             <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h3 className="text-lg font-bold">Incoming Service Quotes</h3>
-              </div>
-
-              {quotes.length === 0 ? (
-                <div className="text-center py-20 bg-neutral-950 border border-neutral-900 rounded-2xl">
-                  <FileText className="w-12 h-12 text-neutral-800 mx-auto mb-4" />
-                  <p className="text-neutral-500 text-sm">No new quotes requested yet.</p>
-                </div>
-              ) : (
-                <div className="bg-neutral-950 border border-neutral-900 rounded-2xl overflow-x-auto shadow-2xl">
-                  <table className="w-full text-left text-sm whitespace-nowrap">
-                    <thead>
-                      <tr className="border-b border-neutral-900 bg-neutral-900/30">
-                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">ID</th>
-                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Customer</th>
-                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Sector</th>
-                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Status</th>
-                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-neutral-900">
-                      {quotes.map((q) => (
-                        <tr key={q.id} className="hover:bg-neutral-900/40 transition">
+              <h3 className="text-xl font-black uppercase tracking-widest text-white">Service Inquiries</h3>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-neutral-800/50 border-b border-neutral-800">
+                    <tr><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">ID</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Customer</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Sector</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500 text-center">Action</th></tr>
+                  </thead>
+                  <tbody>
+                    {quotes.length === 0 ? (
+                       <tr><td colSpan={4} className="px-6 py-20 text-center text-neutral-600 font-bold italic">Inquiry log is currently empty.</td></tr>
+                    ) : (
+                      quotes.map(q => (
+                        <tr key={q.id} className="hover:bg-blue-600/5 transition-colors border-b border-neutral-800/50">
                           <td className="px-6 py-4 font-mono font-bold text-blue-500">{q.id}</td>
-                          <td className="px-6 py-4">
-                            <div className="font-bold text-white">{q.customer}</div>
-                            <div className="text-[10px] text-neutral-500">{q.email}</div>
-                          </td>
-                          <td className="px-6 py-4 font-bold text-white">{q.service}</td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${q.status === 'Processed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                              {q.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <button 
-                              onClick={() => onUpdateQuoteStatus(q.id, 'Processed')}
-                              className="p-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-blue-500 transition"
-                            >
-                              <CheckCircle className="w-3.5 h-3.5" />
-                            </button>
-                          </td>
+                          <td className="px-6 py-4 text-white font-bold">{q.customer}</td>
+                          <td className="px-6 py-4 text-neutral-400 font-medium">{q.service}</td>
+                          <td className="px-6 py-4 text-center"><button onClick={() => onUpdateQuoteStatus(q.id, 'Processed')} className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all">Process</button></td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
-          {activeTab === 'certificates' && (
+          {/* INVENTORY TAB */}
+          {activeTab === 'inventory' && (
             <div className="space-y-6 animate-fade-in">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <h3 className="text-lg font-bold">Regulatory Compliance Certificates</h3>
-                <button 
-                  onClick={() => {
-                    setEditingCertId(null);
-                    setNewCert({ title: '', type: '', issued: '', expiry: '', imageUrl: '' });
-                    setIsAddingCert(true);
-                  }}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl flex items-center gap-2 transition"
-                >
-                  <Plus className="w-4 h-4" /> Add New Cert
-                </button>
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black uppercase tracking-widest text-white">Shop Stock</h3>
+                <button onClick={() => setIsAddingProduct(true)} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg transition-all"><Plus className="w-4 h-4" /> Add Item</button>
               </div>
-
-              {isAddingCert && (
-                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 animate-slide-up max-h-[400px] overflow-y-auto custom-scrollbar">
-                  <div className="flex justify-between items-center mb-6 sticky top-0 bg-neutral-900 py-2 z-10 border-b border-neutral-800 pb-2">
-                    <h4 className="font-bold text-sm">{editingCertId ? 'Edit Certification' : 'Create Certification Record'}</h4>
-                    <button onClick={() => setIsAddingCert(false)} className="text-neutral-500 hover:text-white"><X className="w-4 h-4" /></button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input 
-                      type="text" placeholder="Certificate Title" 
-                      value={newCert.title} onChange={(e) => setNewCert({...newCert, title: e.target.value})}
-                      className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500"
-                    />
-                    <input 
-                      type="text" placeholder="Class / Type" 
-                      value={newCert.type} onChange={(e) => setNewCert({...newCert, type: e.target.value})}
-                      className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500"
-                    />
-                    <input 
-                      type="date" placeholder="Issue Date" 
-                      value={newCert.issued} onChange={(e) => setNewCert({...newCert, issued: e.target.value})}
-                      className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500"
-                    />
-                    <input 
-                      type="date" placeholder="Expiry Date" 
-                      value={newCert.expiry} onChange={(e) => setNewCert({...newCert, expiry: e.target.value})}
-                      className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500"
-                    />
-                    <div className="md:col-span-2">
-                      <input 
-                        type="text" placeholder="Image URL (MERA Cert Image)" 
-                        value={newCert.imageUrl} onChange={(e) => setNewCert({...newCert, imageUrl: e.target.value})}
-                        className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      if (editingCertId) {
-                        onEditCert({...newCert, id: editingCertId, status: 'Active'});
-                      } else {
-                        onAddCert({...newCert, id: Date.now().toString(), status: 'Active'});
-                      }
-                      setIsAddingCert(false);
-                      setEditingCertId(null);
-                      setNewCert({ title: '', type: '', issued: '', expiry: '', imageUrl: '' });
-                    }}
-                    className="mt-6 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition"
-                  >
-                    {editingCertId ? 'Update Certificate' : 'Save Certificate'}
-                  </button>
+              {isAddingProduct && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 space-y-6 animate-slide-up shadow-2xl">
+                   <div className="flex justify-between items-center"><h4 className="font-bold text-sm uppercase text-blue-500">New Product</h4><button onClick={() => setIsAddingProduct(false)}><X className="w-4 h-4" /></button></div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                     <input type="text" placeholder="Name" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                     <input type="number" placeholder="Price (USD)" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: Number(e.target.value)})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                     <ImageUploadField label="Product Image" folder="shop" onUpload={(url) => setNewProduct({...newProduct, image: url})} />
+                     <select value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none h-[48px] self-end">
+                        <option>Solar Power</option><option>Wiring & Cables</option><option>Power Accessories</option><option>Safety Gear</option>
+                     </select>
+                     <div className="md:col-span-2">
+                        <textarea placeholder="Product Description..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-2xl px-5 py-4 text-xs text-white h-32 outline-none resize-none" />
+                     </div>
+                   </div>
+                   <button onClick={() => {onAddProduct({...newProduct, id: Date.now().toString()}); setIsAddingProduct(false);}} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase shadow-xl transition-all">Save Product</button>
                 </div>
               )}
-
-              <div className="bg-neutral-950 border border-neutral-900 rounded-2xl overflow-x-auto shadow-2xl">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
                 <table className="w-full text-left text-sm whitespace-nowrap">
-                  <thead>
-                    <tr className="border-b border-neutral-900 bg-neutral-900/30">
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Title</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Class</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Expiry</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Status</th>
-                      <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-neutral-900">
-                    {certificates.map((c) => (
-                      <tr key={c.id} className="hover:bg-neutral-900/40 transition">
+                   <tbody>
+                    {products.length === 0 ? (
+                       <tr><td colSpan={2} className="px-6 py-20 text-center text-neutral-600 font-bold italic">Retail shop is currently empty.</td></tr>
+                    ) : (
+                      products.map(p => (
+                        <tr key={p.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition-colors">
+                          <td className="px-6 py-4 font-bold text-white">{p.name}</td>
+                          <td className="px-6 py-4 text-right"><button onClick={() => onRemoveProduct(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button></td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* PROJECTS TAB */}
+          {activeTab === 'projects' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black uppercase tracking-widest text-white">Projects Hub</h3>
+                <button onClick={() => setIsAddingProject(true)} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg transition-all"><Plus className="w-4 h-4" /> Add Case Study</button>
+              </div>
+              {isAddingProject && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 space-y-6 animate-slide-up shadow-2xl">
+                   <div className="flex justify-between items-center"><h4 className="font-bold text-sm uppercase text-blue-500">New Portfolio Listing</h4><button onClick={() => setIsAddingProject(false)}><X className="w-4 h-4" /></button></div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <input type="text" placeholder="Title" value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <input type="text" placeholder="Location" value={newProject.location} onChange={e => setNewProject({...newProject, location: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <ImageUploadField label="Case Study Cover" folder="projects" onUpload={(url) => setNewProject({...newProject, image: url})} />
+                      <input type="text" placeholder="Date (e.g. June 2026)" value={newProject.date} onChange={e => setNewProject({...newProject, date: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none self-end h-[48px]" />
+                      <div className="md:col-span-2">
+                        <textarea placeholder="Technical Project Summary & Impact..." value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-2xl px-5 py-4 text-xs text-white h-32 outline-none resize-none focus:border-blue-500" />
+                      </div>
+                   </div>
+                   <button onClick={() => {onAddProject({...newProject, id: Date.now().toString()}); setIsAddingProject(false); setNewProject({ title: '', category: 'Solar Clean Energy', location: '', date: '', image: '', description: '' });}} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase shadow-xl transition-all">Publish Project</button>
+                </div>
+              )}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <tbody>
+                    {projects.length === 0 ? (
+                       <tr><td colSpan={2} className="px-6 py-20 text-center text-neutral-600 font-bold">No projects added yet.</td></tr>
+                    ) : (
+                      projects.map(p => (
+                        <tr key={p.id} className="border-b border-neutral-800/50 hover:bg-neutral-800/30 transition-colors">
+                          <td className="px-6 py-4 font-bold text-white">{p.title}</td>
+                          <td className="px-6 py-4 text-right"><button onClick={() => onRemoveProject(p.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button></td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* COMPLIANCE TAB */}
+          {activeTab === 'certificates' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black uppercase tracking-widest text-white">Compliance Certs</h3>
+                <button onClick={() => { setEditingCertId(null); setNewCert({ title: '', type: '', issued: '', expiry: '', imageUrl: '' }); setIsAddingCert(true); }} className="px-5 py-2.5 bg-blue-600 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg"><Plus className="w-4 h-4" /> Add Cert</button>
+              </div>
+              {isAddingCert && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 space-y-6 animate-slide-up shadow-2xl">
+                   <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-sm uppercase text-blue-500">{editingCertId ? 'Update Cert' : 'New Compliance Record'}</h4>
+                      <button onClick={() => setIsAddingCert(false)}><X className="w-4 h-4" /></button>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <input type="text" placeholder="Title" value={newCert.title} onChange={e => setNewCert({...newCert, title: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <input type="text" placeholder="Type" value={newCert.type} onChange={e => setNewCert({...newCert, type: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <input type="date" value={newCert.issued} onChange={e => setNewCert({...newCert, issued: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <input type="date" value={newCert.expiry} onChange={e => setNewCert({...newCert, expiry: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
+                      <div className="md:col-span-2">
+                        <ImageUploadField label="Official License Image" folder="compliance" onUpload={(url) => setNewCert({...newCert, imageUrl: url})} />
+                      </div>
+                   </div>
+                   <button onClick={() => { if (editingCertId) { onEditCert({...newCert, id: editingCertId, status: 'Active'}); } else { onAddCert({...newCert, id: Date.now().toString(), status: 'Active'}); } setIsAddingCert(false); setEditingCertId(null); setNewCert({ title: '', type: '', issued: '', expiry: '', imageUrl: '' }); }} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-600/30">Save Compliance</button>
+                </div>
+              )}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <tbody>
+                    {certificates.map(c => (
+                      <tr key={c.id} className="hover:bg-blue-600/5 transition-colors border-b border-neutral-800/50">
                         <td className="px-6 py-4 font-bold text-white">{c.title}</td>
-                        <td className="px-6 py-4 text-neutral-400 text-xs">{c.type}</td>
-                        <td className="px-6 py-4 text-neutral-400 text-xs">{c.expiry}</td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase">
-                            {c.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => {
-                                setEditingCertId(c.id);
-                                setNewCert({ title: c.title, type: c.type, issued: c.issued, expiry: c.expiry, imageUrl: c.imageUrl });
-                                setIsAddingCert(true);
-                              }}
-                              className="p-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-blue-500 transition"
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button 
-                              onClick={() => onRemoveCert(c.id)}
-                              className="p-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-red-500 transition"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                             <button onClick={() => { setEditingCertId(c.id); setNewCert({ title: c.title, type: c.type, issued: c.issued, expiry: c.expiry, imageUrl: c.imageUrl }); setIsAddingCert(true); }} className="p-2 bg-neutral-800 hover:bg-blue-600 rounded-xl transition-all"><Edit2 className="w-4 h-4 text-white" /></button>
+                             <button onClick={() => onRemoveCert(c.id)} className="p-2 bg-neutral-800 hover:bg-red-500 rounded-xl transition-all"><Trash2 className="w-4 h-4 text-white" /></button>
                           </div>
                         </td>
                       </tr>
@@ -417,92 +382,88 @@ export default function AdminPortal({
               </div>
             </div>
           )}
+
+          {/* FEEDBACK TAB */}
+          {activeTab === 'feedback' && (
+            <div className="space-y-6 animate-fade-in">
+              <h3 className="text-xl font-black uppercase tracking-widest text-white">User Testimonials</h3>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                   <thead className="bg-neutral-800/50 border-b border-neutral-800"><tr className="tracking-widest font-black text-neutral-500 text-[10px] uppercase"><th className="px-6 py-5">User</th><th className="px-6 py-5 text-center">Action</th></tr></thead>
+                   <tbody className="divide-y divide-neutral-800/50">
+                    {testimonials.map(t => (
+                      <tr key={t.id} className="hover:bg-blue-600/5 transition-colors">
+                        <td className="px-6 py-4 font-bold text-white">{t.author}</td>
+                        <td className="px-6 py-4 text-center"><div className="flex justify-center gap-3">{!t.approved && <button onClick={() => onApproveTestimonial(t.id)} className="px-4 py-2 bg-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest">Publish</button>}<button onClick={() => onRemoveTestimonial(t.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button></div></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* LEADERSHIP TAB */}
+          {activeTab === 'leadership' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-black uppercase tracking-widest text-white">WHL Board</h3>
+                <button onClick={() => setIsAddingMember(true)} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-xl text-[10px] font-black uppercase flex items-center gap-2 transition-all"><Plus className="w-4 h-4" /> Add Leader</button>
+              </div>
+              {isAddingMember && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 space-y-6 shadow-2xl">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <input type="text" placeholder="Full Name" value={newMember.name} onChange={e => setNewMember({...newMember, name: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none focus:border-blue-500" />
+                      <input type="text" placeholder="Role" value={newMember.role} onChange={e => setNewMember({...newMember, role: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none focus:border-blue-500" />
+                      <ImageUploadField label="Leader Portrait" folder="team" onUpload={(url) => setNewMember({...newMember, image: url})} />
+                      <div className="md:col-span-2"><textarea placeholder="Professional Bio & Background..." value={newMember.bio} onChange={e => setNewMember({...newMember, bio: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-2xl px-5 py-4 text-xs text-white h-32 resize-none outline-none focus:border-blue-500" /></div>
+                   </div>
+                   <button onClick={() => {onAddLeadership({...newMember, id: Date.now().toString()}); setIsAddingMember(false); setNewMember({ name: '', role: '', image: '', bio: '' });}} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all">Commit to Board</button>
+                </div>
+              )}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <tbody>
+                    {leadership.map(m => (
+                      <tr key={m.id} className="hover:bg-blue-600/5 transition-colors border-b border-neutral-800/50">
+                        <td className="px-6 py-4 font-bold text-white">{m.name}</td>
+                        <td className="px-6 py-4 text-right"><button onClick={() => onRemoveLeadership(m.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-all"><Trash2 className="w-4 h-4" /></button></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
 
-      {/* Order Detail Side-Overlay - Scroll Responsive */}
+      {/* Order Side-Overlay */}
       {selectedOrder && (
-        <div className="fixed inset-0 z-[70] md:relative md:inset-auto md:w-[400px] bg-neutral-900 border-l border-neutral-800 flex flex-col overflow-hidden animate-slide-left shadow-2xl">
-          <div className="p-6 border-b border-neutral-800 flex items-center justify-between shrink-0">
-            <h3 className="text-lg font-bold">Order Verification</h3>
-            <button onClick={() => setSelectedOrder(null)} className="p-2 text-neutral-400 hover:text-white transition">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 min-h-0">
-            <div className="space-y-4">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-neutral-500">Bank Details Provided</span>
-                <div className="mt-2 p-4 bg-black border border-neutral-800 rounded-xl space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-neutral-500">Method:</span>
-                    <span className="text-white font-bold">{selectedOrder.method}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-neutral-500">Conf. Code:</span>
-                    <span className="text-emerald-500 font-mono font-bold">{selectedOrder.confCode}</span>
-                  </div>
-                  <div className="flex justify-between text-xs border-t border-neutral-900 pt-2 mt-1">
-                    <span className="text-neutral-500">Total Amount:</span>
-                    <div className="text-right">
-                      <span className="text-white font-bold block">${selectedOrder.total.toFixed(2)}</span>
-                      <span className="text-[10px] text-neutral-400 font-bold block">MK {(selectedOrder.total * 2500).toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
+        <div className="fixed inset-0 z-[70] md:relative md:inset-auto md:w-[500px] bg-neutral-900 border-l border-neutral-800 flex flex-col overflow-hidden animate-slide-left shadow-3xl">
+           <div className="p-8 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/50 shadow-sm">
+              <h3 className="text-xl font-black uppercase tracking-widest">Verification Desk</h3>
+              <button onClick={() => setSelectedOrder(null)} className="p-2 hover:bg-neutral-800 rounded-full transition-all"><X className="w-6 h-6" /></button>
+           </div>
+           <div className="flex-1 overflow-y-auto p-8 space-y-8 min-h-0 custom-scrollbar">
+              <div className="p-6 bg-black border border-neutral-800 rounded-3xl space-y-4 shadow-inner">
+                <div className="flex justify-between font-black text-blue-500 text-sm uppercase tracking-widest border-b border-neutral-900 pb-3"><span>Reference:</span><span>{selectedOrder.confCode}</span></div>
+                <div className="flex justify-between text-xs text-neutral-400 font-bold uppercase tracking-wider"><span>Payment Method:</span><span className="text-white">{selectedOrder.method}</span></div>
+                <div className="flex justify-between text-xs text-neutral-400 font-bold uppercase tracking-wider"><span>Order Value:</span><span className="text-emerald-500 font-black">${selectedOrder.total}</span></div>
               </div>
-
-              <div>
-                <span className="text-[10px] uppercase font-bold text-neutral-500">Proof of Payment (POP)</span>
-                <div className="mt-2 relative rounded-xl overflow-hidden border border-neutral-800 aspect-video">
-                  <img src={selectedOrder.popUrl} alt="POP Receipt" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition">
-                    <button className="p-3 bg-blue-600 rounded-xl text-white shadow-lg">
-                      <Download className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-                <button className="w-full mt-2 py-2 text-[10px] font-bold uppercase text-blue-500 hover:text-blue-400 transition">
-                  Open in New Tab
-                </button>
+              <div className="space-y-3">
+                 <span className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em] ml-2">Bank Proof Image</span>
+                 <div className="rounded-3xl overflow-hidden border-2 border-neutral-800 aspect-video shadow-2xl group relative"><img src={selectedOrder.popUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" /></div>
+                 <button className="w-full py-3 text-[10px] font-black uppercase text-blue-500 hover:tracking-[0.2em] transition-all flex items-center justify-center gap-2"><Download className="w-4 h-4" /> Download Official POP</button>
               </div>
-
-              <div className="space-y-2">
-                <span className="text-[10px] uppercase font-bold text-neutral-500">Items Purchased</span>
-                {selectedOrder.items.map((item: string, i: number) => (
-                  <div key={i} className="flex gap-3 text-xs p-3 bg-neutral-950 border border-neutral-900 rounded-lg">
-                    <Package className="w-4 h-4 text-neutral-600" />
-                    <span className="text-neutral-300">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border-t border-neutral-800 bg-neutral-900 shrink-0 space-y-3">
-            <button 
-              onClick={() => {
-                onUpdateOrderStatus(selectedOrder.id, 'Verified');
-                setSelectedOrder(null);
-              }}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
-            >
-              <CheckCircle className="w-4 h-4" /> Approve & Mark as Paid
-            </button>
-            <button 
-              onClick={() => {
-                onUpdateOrderStatus(selectedOrder.id, 'Issue Flagged');
-                setSelectedOrder(null);
-              }}
-              className="w-full py-3 border border-neutral-800 hover:bg-neutral-850 text-neutral-400 font-bold text-xs rounded-xl transition"
-            >
-              Flag for Issues
-            </button>
-          </div>
+           </div>
+           <div className="p-8 border-t border-neutral-800 bg-neutral-900/50 space-y-3">
+              <button onClick={() => {onUpdateOrderStatus(selectedOrder.id, 'Verified'); setSelectedOrder(null);}} className="w-full py-5 bg-blue-600 hover:bg-blue-700 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-blue-600/30 transition-all">Verify & Approve Transaction</button>
+              <button onClick={() => setSelectedOrder(null)} className="w-full py-4 text-neutral-500 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest">Hold for Review</button>
+           </div>
         </div>
       )}
-
     </div>
   );
 }

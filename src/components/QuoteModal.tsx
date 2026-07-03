@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ArrowRight, ArrowLeft, Shield, Send, CheckCircle } from 'lucide-react';
+import { getFlagFromCode } from '../utils/flags';
 
 interface QuoteModalProps {
   isOpen: boolean;
@@ -20,13 +21,13 @@ export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModa
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
+    phone: '+',
     company: '',
     location: 'Blantyre',
     idNumber: '',
     employmentNumber: '',
     witnessName: '',
-    witnessPhone: '',
+    witnessPhone: '+',
     // Electrical specifics
     electricalType: 'Solar Installation',
     energyNeed: 'Residential (3kW - 5kW)',
@@ -96,13 +97,13 @@ export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModa
     setFormData({
       name: '',
       email: '',
-      phone: '',
+      phone: '+',
       company: '',
       location: 'Blantyre',
       idNumber: '',
       employmentNumber: '',
       witnessName: '',
-      witnessPhone: '',
+      witnessPhone: '+',
       electricalType: 'Solar Installation',
       energyNeed: 'Residential (3kW - 5kW)',
       propertySize: '',
@@ -489,15 +490,23 @@ export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModa
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-neutral-400 uppercase mb-2">Phone Number *</label>
-                      <input
-                        type="text"
-                        name="phone"
-                        required
-                        value={formData.phone}
-                        onChange={handleChange}
-                        placeholder="0991 807 100"
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition text-sm"
-                      />
+                      <div className="relative flex items-center">
+                        <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
+                          <span className="text-lg leading-none">{getFlagFromCode(formData.phone)}</span>
+                          <div className="w-px h-4 bg-neutral-800" />
+                        </div>
+                        <input
+                          type="text"
+                          name="phone"
+                          required
+                          pattern="^\+.*"
+                          title="Phone number must start with a country code (e.g. +265)"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="+265..."
+                          className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-16 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition text-sm font-mono tracking-wider"
+                        />
+                      </div>
                     </div>
 
                     <div>
@@ -542,15 +551,23 @@ export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModa
 
                   <div>
                     <label className="block text-xs font-semibold text-neutral-400 uppercase mb-2">Witness Phone Contact *</label>
-                    <input
-                      type="text"
-                      name="witnessPhone"
-                      required
-                      value={formData.witnessPhone}
-                      onChange={handleChange}
-                      placeholder="Witness Phone Number"
-                      className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition text-sm"
-                    />
+                    <div className="relative flex items-center">
+                      <div className="absolute left-4 z-10 flex items-center gap-2 pointer-events-none">
+                        <span className="text-lg leading-none">{getFlagFromCode(formData.witnessPhone)}</span>
+                        <div className="w-px h-4 bg-neutral-800" />
+                      </div>
+                      <input
+                        type="text"
+                        name="witnessPhone"
+                        required
+                        pattern="^\+.*"
+                        title="Phone number must start with a country code (e.g. +265)"
+                        value={formData.witnessPhone}
+                        onChange={handleChange}
+                        placeholder="+265..."
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-16 pr-4 py-3 text-white focus:outline-none focus:border-blue-500 transition text-sm font-mono tracking-wider"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-neutral-500 mt-2 bg-neutral-950 p-3 rounded-xl border border-neutral-800">

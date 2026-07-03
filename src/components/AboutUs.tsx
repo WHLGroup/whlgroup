@@ -1,13 +1,22 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Award, Eye, Heart, Target, ChevronLeft, ChevronRight, MessageSquareQuote, X } from 'lucide-react';
 
 interface AboutUsProps {
   certificates: any[];
+  testimonials: any[];
+  leadership: any[];
+  onAddTestimonial: (t: any) => void;
 }
 
-export default function AboutUs({ certificates }: AboutUsProps) {
+export default function AboutUs({ certificates, testimonials, leadership, onAddTestimonial }: AboutUsProps) {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [viewingCert, setViewingCert] = useState<any | null>(null);
+  
+  const [newT, setNewT] = useState({ quote: '', author: '', role: '' });
+  const [showTForm, setShowTForm] = useState(false);
+  const [tSubmitted, setTSubmitted] = useState(false);
+
+  const approvedTestimonials = testimonials.filter(t => t.approved);
 
   const values = [
     {
@@ -32,33 +41,28 @@ export default function AboutUs({ certificates }: AboutUsProps) {
     }
   ];
 
-  const testimonials = [
-    {
-      quote: "WHL GROUP provided an exceptional solar installation and professional design for my new home in Mpemba. Their technical precision and attention to detail were world-class. I now enjoy uninterrupted clean energy.",
-      author: "John Paul Mojoo",
-      role: "Investment Analyst, NICO Asset Managers",
-      project: "Solar Design & Installation (Mpemba, BT)"
-    },
-    {
-      quote: "The electrical wiring and infrastructure design WHL executed for my newly built upstairs residence was flawless. Their team is professional, efficient, and conforms to the highest safety standards. Exceptional work!",
-      author: "Tawanda Jai Banda",
-      role: "Financial Professional, FDH Bank",
-      project: "Electrical Wiring & Design (Upstairs Project)"
-    },
-    {
-      quote: "Excellent logistics and engineering synchronization! WHL continues to set the benchmark for corporate and residential power solutions in Malawi through their reliable project delivery and expert support.",
-      author: "Wonderful Kaliati",
-      role: "CEO, WHL GROUP",
-      project: "Nationwide Operations"
-    }
-  ];
-
   const handleNextTestimonial = () => {
-    setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    setActiveTestimonial((prev) => (prev + 1) % (approvedTestimonials.length || 1));
   };
 
   const handlePrevTestimonial = () => {
-    setActiveTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setActiveTestimonial((prev) => (prev - 1 + (approvedTestimonials.length || 1)) % (approvedTestimonials.length || 1));
+  };
+
+  const handleTSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onAddTestimonial({
+      ...newT,
+      id: Date.now().toString(),
+      project: 'Customer Submission',
+      approved: false
+    });
+    setTSubmitted(true);
+    setTimeout(() => {
+      setShowTForm(false);
+      setTSubmitted(false);
+      setNewT({ quote: '', author: '', role: '' });
+    }, 3000);
   };
 
   return (
@@ -136,44 +140,31 @@ export default function AboutUs({ certificates }: AboutUsProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            {[
-              {
-                name: 'Wonderful Kaliati',
-                role: 'Chief Executive Officer',
-                image: '/images/wonderful-kaliati-ceo.jpg',
-                bio: 'Visionary leader driving WHL GROUP toward engineering excellence and nationwide logistics innovation. Over 15 years of industry leadership.'
-              },
-              {
-                name: 'Dr. Tamara Phiri',
-                role: 'Director of Solar Engineering',
-                image: '/images/about-director-solar.jpg',
-                bio: 'Doctorate in Renewable Power Grids. Oversees high-voltage design & battery certifications.'
-              },
-              {
-                name: 'George Kumwenda',
-                role: 'Head of Logistics & Supply Chain',
-                image: '/images/about-head-logistics.jpg',
-                bio: 'Courier and freight logistics veteran. Developed WHL next-day inter-city cargo transit lanes.'
-              }
-            ].map((member, i) => (
-              <div key={i} className="bg-neutral-950 border border-neutral-900 rounded-3xl overflow-hidden group hover:border-neutral-800 transition">
-                <div className="aspect-square bg-neutral-900 overflow-hidden relative">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+          {leadership.length === 0 ? (
+             <div className="text-center py-10 bg-neutral-950 border border-neutral-900 rounded-3xl">
+                <p className="text-neutral-500 text-sm italic">Leadership profiles will appear once added by admin.</p>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {leadership.map((member, i) => (
+                <div key={i} className="bg-neutral-950 border border-neutral-900 rounded-3xl overflow-hidden group hover:border-neutral-800 transition">
+                  <div className="aspect-square bg-neutral-900 overflow-hidden relative">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  </div>
+                  <div className="p-6 space-y-2">
+                    <h4 className="font-extrabold text-lg text-white group-hover:text-blue-500 transition">{member.name}</h4>
+                    <span className="text-xs uppercase tracking-wider font-extrabold text-blue-500 block">{member.role}</span>
+                    <p className="text-xs text-neutral-400 leading-relaxed pt-2 border-t border-neutral-900 mt-2">{member.bio}</p>
+                  </div>
                 </div>
-                <div className="p-6 space-y-2">
-                  <h4 className="font-extrabold text-lg text-white group-hover:text-blue-500 transition">{member.name}</h4>
-                  <span className="text-xs uppercase tracking-wider font-extrabold text-blue-500 block">{member.role}</span>
-                  <p className="text-xs text-neutral-400 leading-relaxed pt-2 border-t border-neutral-900 mt-2">{member.bio}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Interactive Customer Testimonials Carousel slider */}
@@ -189,42 +180,96 @@ export default function AboutUs({ certificates }: AboutUsProps) {
             
             {/* Active Testimonial quote content */}
             <div className="space-y-4 pt-6 min-h-[160px] flex flex-col justify-center">
-              <p className="text-base sm:text-lg text-neutral-300 italic leading-relaxed">
-                "{testimonials[activeTestimonial].quote}"
-              </p>
-              <div>
-                <h4 className="font-extrabold text-white">{testimonials[activeTestimonial].author}</h4>
-                <p className="text-xs text-neutral-500 mt-0.5">
-                  {testimonials[activeTestimonial].role} • <span className="text-blue-500">{testimonials[activeTestimonial].project}</span>
-                </p>
-              </div>
+              {approvedTestimonials.length > 0 ? (
+                <>
+                  <p className="text-base sm:text-lg text-neutral-300 italic leading-relaxed">
+                    "{approvedTestimonials[activeTestimonial].quote}"
+                  </p>
+                  <div>
+                    <h4 className="font-extrabold text-white">{approvedTestimonials[activeTestimonial].author}</h4>
+                    <p className="text-xs text-neutral-500 mt-0.5">
+                      {approvedTestimonials[activeTestimonial].role} • <span className="text-blue-500">{approvedTestimonials[activeTestimonial].project}</span>
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-neutral-500 italic">No public testimonials yet. Be the first to share your experience!</p>
+              )}
             </div>
 
             {/* Slider Navigation Controls */}
-            <div className="flex justify-center items-center gap-4 pt-4">
-              <button
-                onClick={handlePrevTestimonial}
-                className="p-2.5 rounded-full border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <div className="flex gap-1.5">
-                {testimonials.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveTestimonial(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeTestimonial === idx ? 'w-6 bg-blue-500' : 'w-2 bg-neutral-800'
-                    }`}
-                  />
-                ))}
+            {approvedTestimonials.length > 1 && (
+              <div className="flex justify-center items-center gap-4 pt-4">
+                <button
+                  onClick={handlePrevTestimonial}
+                  className="p-2.5 rounded-full border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div className="flex gap-1.5">
+                  {approvedTestimonials.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveTestimonial(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        activeTestimonial === idx ? 'w-6 bg-blue-500' : 'w-2 bg-neutral-800'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={handleNextTestimonial}
+                  className="p-2.5 rounded-full border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
-              <button
-                onClick={handleNextTestimonial}
-                className="p-2.5 rounded-full border border-neutral-800 bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+            )}
+
+            {/* Submission CTA */}
+            <div className="pt-10">
+              {showTForm ? (
+                <form onSubmit={handleTSubmit} className="max-w-xl mx-auto bg-neutral-900 border border-neutral-800 rounded-2xl p-6 text-left space-y-4 animate-slide-up">
+                  <h4 className="font-bold text-sm text-white">Share Your WHL Experience</h4>
+                  {tSubmitted ? (
+                    <div className="text-center py-4 text-emerald-500 font-bold text-xs">
+                      Thank you! Your testimony has been sent for admin approval.
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-2 gap-4">
+                        <input 
+                          type="text" required placeholder="Your Name" 
+                          value={newT.author} onChange={(e) => setNewT({...newT, author: e.target.value})}
+                          className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                        />
+                        <input 
+                          type="text" required placeholder="Professional Role" 
+                          value={newT.role} onChange={(e) => setNewT({...newT, role: e.target.value})}
+                          className="bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white"
+                        />
+                      </div>
+                      <textarea 
+                        required placeholder="Your Testimony..." 
+                        value={newT.quote} onChange={(e) => setNewT({...newT, quote: e.target.value})}
+                        rows={3}
+                        className="w-full bg-black border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white resize-none"
+                      />
+                      <div className="flex gap-2">
+                        <button type="submit" className="flex-1 py-2.5 bg-blue-600 rounded-xl text-xs font-bold">Submit for Review</button>
+                        <button type="button" onClick={() => setShowTForm(false)} className="px-4 py-2.5 bg-neutral-800 rounded-xl text-xs font-bold">Cancel</button>
+                      </div>
+                    </>
+                  )}
+                </form>
+              ) : (
+                <button 
+                  onClick={() => setShowTForm(true)}
+                  className="px-6 py-2.5 border border-blue-500/30 text-blue-500 hover:bg-blue-600 hover:text-white transition rounded-xl text-xs font-bold"
+                >
+                  Share Your Story
+                </button>
+              )}
             </div>
 
           </div>

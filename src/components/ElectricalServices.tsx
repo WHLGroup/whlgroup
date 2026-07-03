@@ -262,9 +262,15 @@ export default function ElectricalServices({ onQuoteRequest }: ElectricalService
                     <span className="text-xs text-neutral-400">Li-Ion Storage Power:</span>
                     <span className="text-sm font-extrabold text-white">{calculatedStorage} kWh</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-neutral-400">Estimated Cost Range:</span>
-                    <span className="text-sm font-extrabold text-blue-500">${estimatedCost.toLocaleString()} - ${(estimatedCost * 1.25).toLocaleString()} USD</span>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-neutral-400">Est. Cost (USD):</span>
+                      <span className="text-sm font-extrabold text-blue-500">${estimatedCost.toLocaleString()} - ${(estimatedCost * 1.25).toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-neutral-500 font-bold uppercase">Est. Cost (MK):</span>
+                      <span className="text-[10px] font-black text-neutral-400">MK {(estimatedCost * 2500).toLocaleString()} - MK {(estimatedCost * 1.25 * 2500).toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
               </div>

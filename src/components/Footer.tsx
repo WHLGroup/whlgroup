@@ -1,5 +1,7 @@
 import { Mail, Phone, MapPin, Sparkles } from 'lucide-react';
 
+import { useState, useRef } from 'react';
+
 interface FooterProps {
   setActiveTab: (tab: string) => void;
   onQuoteRequest: () => void;
@@ -7,6 +9,25 @@ interface FooterProps {
 }
 
 export default function Footer({ setActiveTab, onQuoteRequest, onAdminClick }: FooterProps) {
+  const [clickCount, setClickCount] = useState(0);
+  const lastClickTime = useRef<number>(0);
+
+  const handleHiddenGesture = () => {
+    const now = Date.now();
+    if (now - lastClickTime.current < 500) {
+      const newCount = clickCount + 1;
+      if (newCount >= 5) {
+        onAdminClick();
+        setClickCount(0);
+      } else {
+        setClickCount(newCount);
+      }
+    } else {
+      setClickCount(1);
+    }
+    lastClickTime.current = now;
+  };
+
   const handleLinkClick = (tab: string) => {
     setActiveTab(tab);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -105,13 +126,18 @@ export default function Footer({ setActiveTab, onQuoteRequest, onAdminClick }: F
 
         {/* Lower row details and copyrights */}
         <div className="pt-8 border-t border-neutral-900 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-neutral-500">
-          <span>© 2026 WHL GROUP. All Rights Reserved.</span>
+          <span 
+            onClick={handleHiddenGesture}
+            className="cursor-default select-none"
+          >
+            © 2026 WHL GROUP. All Rights Reserved.
+          </span>
           <div className="flex gap-4">
-            <span onClick={onAdminClick} className="hover:text-neutral-400 cursor-pointer">Management Portal</span>
-            <span>•</span>
             <span className="hover:text-neutral-400 cursor-pointer">SANS Regulatory Sizing</span>
             <span>•</span>
             <span className="hover:text-neutral-400 cursor-pointer">MERA Certified Licences</span>
+            <span>•</span>
+            <span className="hover:text-neutral-400 cursor-pointer">Tax Compliance</span>
           </div>
         </div>
 

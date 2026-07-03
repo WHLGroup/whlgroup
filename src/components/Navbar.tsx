@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, Menu, X, ChevronDown, Search } from 'lucide-react';
+import { ShoppingCart, Menu, X, ChevronDown, Search, User } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -8,6 +8,8 @@ interface NavbarProps {
   onCartClick: () => void;
   onQuoteClick: () => void;
   onSearchClick: () => void;
+  onAccountClick: () => void;
+  currentUser: any;
 }
 
 export default function Navbar({
@@ -16,7 +18,9 @@ export default function Navbar({
   cartCount,
   onCartClick,
   onQuoteClick,
-  onSearchClick
+  onSearchClick,
+  onAccountClick,
+  currentUser
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [elecDropdownOpen, setElecDropdownOpen] = useState(false);
@@ -191,6 +195,26 @@ export default function Navbar({
               )}
             </button>
 
+            {/* Client Account - Only visible in Shop or if already logged in */}
+            {(activeTab === 'shop' || currentUser) && (
+              <button
+                onClick={onAccountClick}
+                className="flex items-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-xs font-bold text-white rounded-xl border border-neutral-800 transition duration-200"
+              >
+                {currentUser ? (
+                  <>
+                    <div className="w-5 h-5 bg-blue-600 rounded-lg flex items-center justify-center text-[10px] font-black uppercase">{currentUser.name.charAt(0)}</div>
+                    <span className="truncate max-w-[80px]">{currentUser.name}</span>
+                  </>
+                ) : (
+                  <>
+                    <User className="w-4 h-4 text-blue-500" />
+                    <span>Client Login</span>
+                  </>
+                )}
+              </button>
+            )}
+
             {/* Get A Quote CTA */}
             <button
               onClick={onQuoteClick}
@@ -253,7 +277,18 @@ export default function Navbar({
             ))}
           </div>
 
-          <div className="pt-4 border-t border-neutral-900">
+          <div className="pt-4 border-t border-neutral-900 space-y-3">
+            {(activeTab === 'shop' || currentUser) && (
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  onAccountClick();
+                }}
+                className="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-sm font-bold text-white rounded-xl border border-neutral-800 text-center transition flex items-center justify-center gap-2"
+              >
+                {currentUser ? <><User className="w-4 h-4 text-blue-500" /> My Account</> : <><User className="w-4 h-4 text-blue-500" /> Client Portal</>}
+              </button>
+            )}
             <button
               onClick={() => {
                 setIsOpen(false);

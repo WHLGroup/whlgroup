@@ -5,9 +5,10 @@ import { CartItem } from './CartDrawer';
 interface ShopProps {
   onAddToCart: (item: Omit<CartItem, 'quantity'>) => void;
   cart: CartItem[];
+  products: any[];
 }
 
-export default function Shop({ onAddToCart, cart }: ShopProps) {
+export default function Shop({ onAddToCart, cart, products }: ShopProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<string>('featured');
@@ -20,96 +21,7 @@ export default function Shop({ onAddToCart, cart }: ShopProps) {
 
   const categories = ['All', 'Solar Power', 'Wiring & Cables', 'Power Accessories', 'Safety Gear'];
 
-  const products = [
-    {
-      id: 'prod-solar-450w',
-      name: 'WHL MaxPower Monocrystalline Solar Panel (450W)',
-      category: 'Solar Power',
-      price: 189.99,
-      image: '/images/shop-solar-panel.jpg',
-      description: 'High-efficiency Tier 1 monocrystalline panel with tempered anti-reflective glass. Designed to maximize solar yield under high temperature and overcast environments.',
-      rating: 4.9,
-      reviews: 42,
-      specs: ['Cell Type: Monocrystalline', 'Max Power: 450W', 'Dimensions: 2094 x 1038 x 35 mm', 'Weight: 23.5 kg']
-    },
-    {
-      id: 'prod-batt-100ah',
-      name: 'LiFePO4 Lithium Backup Battery (12.8V 100Ah)',
-      category: 'Solar Power',
-      price: 349.99,
-      image: '/images/shop-battery.jpg',
-      description: 'Advanced Lithium Iron Phosphate (LiFePO4) deep-cycle storage cell with integrated Smart BMS control. Supports up to 4500 charge-discharge cycles.',
-      rating: 4.8,
-      reviews: 31,
-      specs: ['Voltage: 12.8V', 'Capacity: 100Ah', 'Cycle Life: 4000+ at 80% DoD', 'BMS: Integrated Auto Protection']
-    },
-    {
-      id: 'prod-inv-5kw',
-      name: 'Smart Hybrid Solar Inverter (5kW Pure Sine)',
-      category: 'Solar Power',
-      price: 599.99,
-      image: '/images/shop-inverter.jpg',
-      description: 'Pure sine wave intelligent hybrid controller and inverter. Connects with dual solar trackers, mains power, and diesel generator networks.',
-      rating: 5.0,
-      reviews: 18,
-      specs: ['Output: Pure Sine Wave', 'Capacity: 5kW / 5000W', 'Max VOC: 500VDC', 'Communication: WiFi Built-in']
-    },
-    {
-      id: 'prod-cable-100m',
-      name: 'Twin-Core Heavy Duty Cable Reel (2.5mm² 100m)',
-      category: 'Wiring & Cables',
-      price: 79.99,
-      image: '/images/shop-cable.jpg',
-      description: 'SANS certified heavy-duty copper electrical cable. Insulated in flexible, chemical-resistant outer PVC protective sheath for building and indoor networks.',
-      rating: 4.7,
-      reviews: 55,
-      specs: ['Conductor: 99.9% Pure Copper', 'Gauge: 2.5mm²', 'Length: 100 meters', 'Certification: SANS 1507 approved']
-    },
-    {
-      id: 'prod-breaker-pack',
-      name: 'Multi-Breaker Safe distribution Board Panel',
-      category: 'Power Accessories',
-      price: 119.99,
-      image: '/images/shop-distribution-board.jpg',
-      description: 'Fully pre-wired distribution board box housing 8 core surge protectors and automated smart earth leakage breakers for house & business safety.',
-      rating: 4.8,
-      reviews: 14,
-      specs: ['Housing: Heavy Polycarbonate IP65', 'Load: 63A main switch', 'Earth Leakage: Integrated sensitive relay', 'Circuit paths: 12-way ready']
-    },
-    {
-      id: 'prod-smartmeter',
-      name: 'Digital Prepaid Power Monitoring Smart-Meter',
-      category: 'Power Accessories',
-      price: 49.99,
-      image: '/images/shop-meter.jpg',
-      description: 'Intelligent digital power meter featuring real-time voltage tracking, smart remote tariff monitoring, and automated safety cut-off relays.',
-      rating: 4.6,
-      reviews: 29,
-      specs: ['Display: LCD Digital Backlit', 'Max Current: 80A', 'Accuracy: Class 1.0', 'Mounting: Standard DIN Rail']
-    },
-    {
-      id: 'prod-safe-hardhat',
-      name: 'WHL Industrial Protective Hard-Hat (White)',
-      category: 'Safety Gear',
-      price: 19.99,
-      image: '/images/shop-hardhat.jpg',
-      description: 'Heavy duty, premium lightweight high-density polyethylene protective hardhat featuring comfortable 6-point suspension band and sweatband cushion.',
-      rating: 4.9,
-      reviews: 64,
-      specs: ['Material: HDPE High Density', 'Suspension: 6-Point ratchet lock', 'Standard: ANSI Z89.1 certified', 'Color: Elite White']
-    },
-    {
-      id: 'prod-box-rugged',
-      name: 'WHL Heavy-Duty Sealed Logistics Transit Box',
-      category: 'Power Accessories',
-      price: 34.99,
-      image: '/images/shop-box.jpg',
-      description: 'Extremely durable, weatherproof storage case equipped with shock absorbent custom foam. Designed to pack sensitive electronic gadgets during transport.',
-      rating: 4.8,
-      reviews: 21,
-      specs: ['Structure: Impact resistant resin', 'Latches: Double-throw toggle locks', 'Volume: 18 Liters capacity', 'Waterproof rating: IP67 dust/water seal']
-    }
-  ];
+
 
   // Filters & Search handling
   const filteredProducts = products.filter((prod) => {
