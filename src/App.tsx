@@ -16,22 +16,7 @@ import SearchOverlay from './components/SearchOverlay';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>('home');
-  const [cart, setCart] = useState<CartItem[]>([
-    {
-      id: 'prod-solar-450w',
-      name: 'WHL MaxPower Monocrystalline Solar Panel (450W)',
-      price: 189.99,
-      image: 'https://images.pexels.com/photos/19895871/pexels-photo-19895871.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
-      quantity: 1
-    },
-    {
-      id: 'prod-safe-hardhat',
-      name: 'WHL Industrial Protective Hard-Hat (White)',
-      price: 19.99,
-      image: 'https://images.pexels.com/photos/8986038/pexels-photo-8986038.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
-      quantity: 1
-    }
-  ]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isQuoteOpen, setIsQuoteOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -48,7 +33,7 @@ export default function App() {
       issued: '2025-01-10',
       expiry: '2026-01-10',
       status: 'Active',
-      imageUrl: 'https://images.pexels.com/photos/3862612/pexels-photo-3862612.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=600'
+      imageUrl: '/images/cert-mera.jpg'
     },
     {
       id: 'cert-2',
@@ -57,7 +42,7 @@ export default function App() {
       issued: '2025-01-01',
       expiry: '2026-01-01',
       status: 'Active',
-      imageUrl: 'https://images.pexels.com/photos/7359566/pexels-photo-7359566.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=600'
+      imageUrl: '/images/cert-mra.jpg'
     },
     {
       id: 'cert-3',
@@ -66,7 +51,7 @@ export default function App() {
       issued: '2024-05-15',
       expiry: '2029-05-15',
       status: 'Active',
-      imageUrl: 'https://images.pexels.com/photos/8986038/pexels-photo-8986038.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=600'
+      imageUrl: '/images/cert-cripc.jpg'
     },
     {
       id: 'cert-4',
@@ -75,7 +60,7 @@ export default function App() {
       issued: '2025-02-20',
       expiry: '2027-02-20',
       status: 'Active',
-      imageUrl: 'https://images.pexels.com/photos/34526423/pexels-photo-34526423.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=600'
+      imageUrl: '/images/cert-nicc.jpg'
     },
     {
       id: 'cert-5',
@@ -84,7 +69,7 @@ export default function App() {
       issued: '2024-11-05',
       expiry: '2026-11-05',
       status: 'Active',
-      imageUrl: 'https://images.pexels.com/photos/6169129/pexels-photo-6169129.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=600'
+      imageUrl: '/images/cert-rbm.jpg'
     }
   ]);
 

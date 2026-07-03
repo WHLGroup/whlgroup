@@ -34,22 +34,22 @@ export default function AboutUs({ certificates }: AboutUsProps) {
 
   const testimonials = [
     {
-      quote: "We commissioned WHL Group to install our hybrid solar array at our manufacturing warehouse in Kanengo. The results have been stellar! Load shedding is a thing of the past, and their team remains on standby for support 24/7.",
-      author: "Gift Mwale",
-      role: "Operations Director, Lilongwe Milling",
-      project: "250kWp Solar Plant"
+      quote: "WHL GROUP provided an exceptional solar installation and professional design for my new home in Mpemba. Their technical precision and attention to detail were world-class. I now enjoy uninterrupted clean energy.",
+      author: "John Paul Mojoo",
+      role: "Investment Analyst, NICO Asset Managers",
+      project: "Solar Design & Installation (Mpemba, BT)"
     },
     {
-      quote: "WHL Logistics handles our e-commerce distributions between Blantyre and Mzuzu. Their courier rates are extremely competitive, and the parcel tracker widget gives our retail buyers complete clarity. Highly recommended!",
-      author: "Alinafe Phiri",
-      role: "E-Commerce Founder, ChicMalawi Store",
-      project: "Express Courier Deliveries"
+      quote: "The electrical wiring and infrastructure design WHL executed for my newly built upstairs residence was flawless. Their team is professional, efficient, and conforms to the highest safety standards. Exceptional work!",
+      author: "Tawanda Jai Banda",
+      role: "Financial Professional, FDH Bank",
+      project: "Electrical Wiring & Design (Upstairs Project)"
     },
     {
-      quote: "Excellent power diagnostic auditing! WHL identified thermal hot-spots in our main electrical switches before any failure occurred. Their safety audit report saved us millions of Kwacha in prospective factory down-times.",
-      author: "Chancy Chirwa",
-      role: "Plant Engineering Lead, Makata Beverages",
-      project: "Power Quality Audit"
+      quote: "Excellent logistics and engineering synchronization! WHL continues to set the benchmark for corporate and residential power solutions in Malawi through their reliable project delivery and expert support.",
+      author: "Wonderful Kaliati",
+      role: "CEO, WHL GROUP",
+      project: "Nationwide Operations"
     }
   ];
 
@@ -83,9 +83,9 @@ export default function AboutUs({ certificates }: AboutUsProps) {
             </p>
           </div>
 
-          <div className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden bg-neutral-900 border border-neutral-850">
+          <div className="relative aspect-video lg:aspect-square rounded-3xl overflow-hidden bg-neutral-900 border border-neutral-800">
             <img
-              src="https://images.pexels.com/photos/19895871/pexels-photo-19895871.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=600&w=600"
+              src="/images/about-team.jpg"
               alt="WHL Professional Teamwork"
               className="w-full h-full object-cover"
             />
@@ -139,21 +139,21 @@ export default function AboutUs({ certificates }: AboutUsProps) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
             {[
               {
-                name: 'Wonderful Brown Kaliati',
+                name: 'Wonderful Kaliati',
                 role: 'Chief Executive Officer',
-                image: 'https://images.pexels.com/photos/8986038/pexels-photo-8986038.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
-                bio: '15+ years managing utility setups. Pioneer in domestic Eletrical and solar installation regulations.'
+                image: '/images/wonderful-kaliati-ceo.jpg',
+                bio: 'Visionary leader driving WHL GROUP toward engineering excellence and nationwide logistics innovation. Over 15 years of industry leadership.'
               },
               {
                 name: 'Dr. Tamara Phiri',
                 role: 'Director of Solar Engineering',
-                image: 'https://images.pexels.com/photos/34526423/pexels-photo-34526423.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
+                image: '/images/about-director-solar.jpg',
                 bio: 'Doctorate in Renewable Power Grids. Oversees high-voltage design & battery certifications.'
               },
               {
                 name: 'George Kumwenda',
                 role: 'Head of Logistics & Supply Chain',
-                image: 'https://images.pexels.com/photos/6169129/pexels-photo-6169129.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=300&w=300',
+                image: '/images/about-head-logistics.jpg',
                 bio: 'Courier and freight logistics veteran. Developed WHL next-day inter-city cargo transit lanes.'
               }
             ].map((member, i) => (

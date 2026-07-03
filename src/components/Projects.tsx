@@ -15,7 +15,7 @@ export default function Projects() {
       location: 'Kanengo Industrial Area, Lilongwe',
       metrics: '250 kWp Installed Solar Output',
       date: 'June 2025',
-      image: 'https://images.pexels.com/photos/35105460/pexels-photo-35105460.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-kanengo.jpg',
       description: 'Fully customized solar canopy structure spanning 1,200 sqm. Integrated hybrid intelligent controllers, LiFePO4 batteries, and remote cloud management system to sustain peak manufacturing capacity during grid outages.',
       details: [
         'Supplies 65% of the factory base load',
@@ -30,7 +30,7 @@ export default function Projects() {
       location: 'Makata Industrial Site, Blantyre',
       metrics: 'Three-Phase Balanced Grid System',
       date: 'April 2025',
-      image: 'https://images.pexels.com/photos/28265032/pexels-photo-28265032.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-mill.jpg',
       description: 'Comprehensive installation of high-voltage industrial panels, automatic phase balancing busbars, and lightning arrestor defense nets for heavy-duty grain milling machines.',
       details: [
         'Installed 1,500m of fire-resistant shielded cabling',
@@ -45,7 +45,7 @@ export default function Projects() {
       location: 'Area 47 Bypass, Lilongwe',
       metrics: '4,000 sqm Temperature Control Facility',
       date: 'October 2024',
-      image: 'https://images.pexels.com/photos/10268770/pexels-photo-10268770.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-hub.jpg',
       description: 'Establishment of WHL GROUP flagship cold-chain shipping terminal and courier distribution depot, linking cross-docking operations for commercial retail products.',
       details: [
         'Equipped with 24-hour smart security guard details',
@@ -60,7 +60,7 @@ export default function Projects() {
       location: 'Limbe Center, Blantyre',
       metrics: '45 kWp Smart Solar Grid Tie',
       date: 'March 2025',
-      image: 'https://images.pexels.com/photos/19895871/pexels-photo-19895871.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-limbe.jpg',
       description: 'Rooftop off-grid solar deployment for major corporate building. Features hybrid battery storage capable of operating the offices for 3 consecutive cloudy days.',
       details: [
         '98% operational uptime recorded since commission',
@@ -75,7 +75,7 @@ export default function Projects() {
       location: 'Mzuzu Airport District',
       metrics: 'Dual 250kVA Backup Generator Grid',
       date: 'January 2025',
-      image: 'https://images.pexels.com/photos/7359566/pexels-photo-7359566.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-airport.jpg',
       description: 'Engineered automatic switchboard (ATS) systems connecting dual synced diesel generators, safeguarding continuous power for main runway lighting and ATC radio nets.',
       details: [
         'Under 3 seconds transfer times during outage events',
@@ -90,7 +90,7 @@ export default function Projects() {
       location: 'Mangochi District Lake Ports',
       metrics: 'Next-Day Courier Fleet Logistics',
       date: 'November 2024',
-      image: 'https://images.pexels.com/photos/6169135/pexels-photo-6169135.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=500&w=800',
+      image: '/images/project-lake.jpg',
       description: 'Extended courier routes and scheduled cargo distributions to lake tourism and retail outlets, providing same-day medical & general equipment parcel delivery.',
       details: [
         'Supports over 150 lake resorts and retail stores',
