@@ -293,8 +293,9 @@ export default function Shop({ onAddToCart, cart }: ShopProps) {
 
                     <div className="pt-4 border-t border-neutral-900 flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="text-[9px] text-neutral-500 font-bold uppercase">Estimated retail</span>
-                        <span className="text-base font-black text-white">${prod.price.toFixed(2)}</span>
+                        <span className="text-[9px] text-neutral-500 font-bold uppercase whitespace-nowrap text-blue-500">Retail Price</span>
+                        <span className="text-base font-black text-white leading-none">${prod.price.toFixed(2)}</span>
+                        <span className="text-[10px] font-bold text-neutral-400 mt-1">MWK {(prod.price * 2500).toLocaleString()}</span>
                       </div>
                       <button
                         onClick={() => handleAddToCartClick(prod)}
@@ -386,8 +387,9 @@ export default function Shop({ onAddToCart, cart }: ShopProps) {
                 {/* Bottom Order block */}
                 <div className="pt-4 border-t border-neutral-900 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
                   <div className="flex flex-col">
-                    <span className="text-[9px] text-neutral-500 font-bold uppercase">Estimated value</span>
-                    <span className="text-2xl font-black text-white">${quickViewProduct.price.toFixed(2)}</span>
+                    <span className="text-[9px] text-neutral-500 font-bold uppercase text-blue-500">Retail Price</span>
+                    <span className="text-2xl font-black text-white leading-none">${quickViewProduct.price.toFixed(2)}</span>
+                    <span className="text-xs font-bold text-neutral-400 mt-1">MWK {(quickViewProduct.price * 2500).toLocaleString()}</span>
                   </div>
 
                   <div className="flex gap-2">

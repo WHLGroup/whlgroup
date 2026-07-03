@@ -23,9 +23,13 @@ interface AdminPortalProps {
   onAddCert: (cert: any) => void;
   onRemoveCert: (id: string) => void;
   onEditCert: (cert: any) => void;
+  onUpdateOrderStatus: (id: string, status: string) => void;
+  onUpdateQuoteStatus: (id: string, status: string) => void;
 }
 
-export default function AdminPortal({ isOpen, onClose, orders, quotes, certificates, onAddCert, onRemoveCert, onEditCert }: AdminPortalProps) {
+export default function AdminPortal({ 
+  isOpen, onClose, orders, quotes, certificates, onAddCert, onRemoveCert, onEditCert, onUpdateOrderStatus, onUpdateQuoteStatus 
+}: AdminPortalProps) {
   const [activeTab, setActiveTab] = useState<'orders' | 'quotes' | 'inventory' | 'certificates'>('orders');
   const [newCert, setNewCert] = useState({ title: '', type: '', issued: '', expiry: '', imageUrl: '' });
   const [isAddingCert, setIsAddingCert] = useState(false);
@@ -216,7 +220,10 @@ export default function AdminPortal({ isOpen, onClose, orders, quotes, certifica
                           <div className="font-bold text-white">{order.customer}</div>
                           <div className="text-[10px] text-neutral-500">{order.date}</div>
                         </td>
-                        <td className="px-6 py-4 font-bold text-white">${order.total}</td>
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-white leading-none">${order.total.toFixed(2)}</div>
+                          <div className="text-[10px] text-neutral-500 mt-1 uppercase font-bold">MK {(order.total * 2500).toLocaleString()}</div>
+                        </td>
                         <td className="px-6 py-4">
                           <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${order.status === 'Verified' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
                             {order.status}
@@ -258,6 +265,7 @@ export default function AdminPortal({ isOpen, onClose, orders, quotes, certifica
                         <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Customer</th>
                         <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Sector</th>
                         <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Status</th>
+                        <th className="px-6 py-4 font-bold text-neutral-400 uppercase text-[10px]">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-neutral-900">
@@ -270,9 +278,17 @@ export default function AdminPortal({ isOpen, onClose, orders, quotes, certifica
                           </td>
                           <td className="px-6 py-4 font-bold text-white">{q.service}</td>
                           <td className="px-6 py-4">
-                            <span className="px-2 py-1 rounded bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase">
+                            <span className={`px-2 py-1 rounded text-[10px] font-black uppercase ${q.status === 'Processed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
                               {q.status}
                             </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button 
+                              onClick={() => onUpdateQuoteStatus(q.id, 'Processed')}
+                              className="p-1.5 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-blue-500 transition"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -427,6 +443,13 @@ export default function AdminPortal({ isOpen, onClose, orders, quotes, certifica
                     <span className="text-neutral-500">Conf. Code:</span>
                     <span className="text-emerald-500 font-mono font-bold">{selectedOrder.confCode}</span>
                   </div>
+                  <div className="flex justify-between text-xs border-t border-neutral-900 pt-2 mt-1">
+                    <span className="text-neutral-500">Total Amount:</span>
+                    <div className="text-right">
+                      <span className="text-white font-bold block">${selectedOrder.total.toFixed(2)}</span>
+                      <span className="text-[10px] text-neutral-400 font-bold block">MK {(selectedOrder.total * 2500).toLocaleString()}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -458,10 +481,22 @@ export default function AdminPortal({ isOpen, onClose, orders, quotes, certifica
           </div>
 
           <div className="p-6 border-t border-neutral-800 bg-neutral-900 shrink-0 space-y-3">
-            <button className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2">
+            <button 
+              onClick={() => {
+                onUpdateOrderStatus(selectedOrder.id, 'Verified');
+                setSelectedOrder(null);
+              }}
+              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+            >
               <CheckCircle className="w-4 h-4" /> Approve & Mark as Paid
             </button>
-            <button className="w-full py-3 border border-neutral-800 hover:bg-neutral-850 text-neutral-400 font-bold text-xs rounded-xl transition">
+            <button 
+              onClick={() => {
+                onUpdateOrderStatus(selectedOrder.id, 'Issue Flagged');
+                setSelectedOrder(null);
+              }}
+              className="w-full py-3 border border-neutral-800 hover:bg-neutral-850 text-neutral-400 font-bold text-xs rounded-xl transition"
+            >
               Flag for Issues
             </button>
           </div>

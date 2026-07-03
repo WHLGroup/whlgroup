@@ -93,6 +93,14 @@ export default function App() {
     setQuotes(prev => [quote, ...prev]);
   };
 
+  const handleUpdateOrderStatus = (id: string, status: string) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
+  };
+
+  const handleUpdateQuoteStatus = (id: string, status: string) => {
+    setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
+  };
+
   // Auto-scroll to top upon tab changing
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -188,6 +196,8 @@ export default function App() {
         onAddCert={handleAddCertificate}
         onRemoveCert={handleRemoveCertificate}
         onEditCert={handleEditCertificate}
+        onUpdateOrderStatus={handleUpdateOrderStatus}
+        onUpdateQuoteStatus={handleUpdateQuoteStatus}
       />
 
       <SearchOverlay 

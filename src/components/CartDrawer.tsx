@@ -159,17 +159,24 @@ export default function CartDrawer({
               <div className="p-6 bg-neutral-950 border-t border-neutral-800 space-y-4">
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-sm text-neutral-400">
-                    <span>Subtotal</span>
+                    <span>Subtotal (USD)</span>
                     <span>${total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-neutral-400 border-b border-neutral-900 pb-1.5 mb-1.5">
+                    <span>Subtotal (MWK)</span>
+                    <span>MK {(total * 2500).toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm text-neutral-400">
                     <span>Tax & Duties</span>
                     <span className="text-emerald-500">Free</span>
                   </div>
                   <div className="h-px bg-neutral-800 my-2" />
-                  <div className="flex justify-between text-base font-bold text-white">
+                  <div className="flex justify-between text-base font-bold text-white items-end">
                     <span>Total Estimated</span>
-                    <span className="text-blue-500">${total.toFixed(2)}</span>
+                    <div className="text-right">
+                      <span className="text-blue-500 block leading-none">${total.toFixed(2)}</span>
+                      <span className="text-[10px] text-neutral-500 font-bold block mt-1 uppercase">MK {(total * 2500).toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
 
