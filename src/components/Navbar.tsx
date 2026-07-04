@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShoppingCart, Menu, X, ChevronDown, Search, User } from 'lucide-react';
+import { ShoppingCart, Menu, X, ChevronDown } from 'lucide-react';
 
 interface NavbarProps {
   activeTab: string;
@@ -7,9 +7,6 @@ interface NavbarProps {
   cartCount: number;
   onCartClick: () => void;
   onQuoteClick: () => void;
-  onSearchClick: () => void;
-  onAccountClick: () => void;
-  currentUser: any;
 }
 
 export default function Navbar({
@@ -17,22 +14,18 @@ export default function Navbar({
   setActiveTab,
   cartCount,
   onCartClick,
-  onQuoteClick,
-  onSearchClick,
-  onAccountClick,
-  currentUser
+  onQuoteClick
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [elecDropdownOpen, setElecDropdownOpen] = useState(false);
   const [logDropdownOpen, setLogDropdownOpen] = useState(false);
-  const [microDropdownOpen, setMicroDropdownOpen] = useState(false);
 
   const navItems = [
     { label: 'Home', value: 'home' },
     { label: 'About Us', value: 'about' },
     { label: 'Electrical Services', value: 'electrical', dropdown: true },
     { label: 'Logistics Services', value: 'logistics', dropdown: true },
-    { label: 'Microfinance', value: 'microfinance', dropdown: true },
+    { label: 'Microfinance', value: 'microfinance' },
     { label: 'Shop', value: 'shop' },
     { label: 'Projects', value: 'projects' },
     { label: 'Contact Us', value: 'contact' }
@@ -43,12 +36,11 @@ export default function Navbar({
     setIsOpen(false);
     setElecDropdownOpen(false);
     setLogDropdownOpen(false);
-    setMicroDropdownOpen(false);
   };
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-neutral-900 bg-black/80 backdrop-blur-md">
-      <div className="mx-auto max-w-[1800px] px-4 sm:px-8 lg:px-12">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           
           {/* Logo Brand */}
@@ -64,19 +56,17 @@ export default function Navbar({
               <span className="text-xl font-black tracking-wider text-white leading-none">
                 WHL <span className="text-blue-500">GROUP</span>
               </span>
+              <span className="text-[9px] font-bold tracking-[0.2em] text-blue-500">MALAWI</span>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-5">
             {navItems.map((item) => {
               if (item.dropdown) {
                 const isElectrical = item.value === 'electrical';
-                const isLogistics = item.value === 'logistics';
-                const isMicro = item.value === 'microfinance';
-
-                const isOpenDropdown = isElectrical ? elecDropdownOpen : isLogistics ? logDropdownOpen : microDropdownOpen;
-                const setOpenDropdown = isElectrical ? setElecDropdownOpen : isLogistics ? setLogDropdownOpen : setMicroDropdownOpen;
+                const isOpenDropdown = isElectrical ? elecDropdownOpen : logDropdownOpen;
+                const setOpenDropdown = isElectrical ? setElecDropdownOpen : setLogDropdownOpen;
 
                 return (
                   <div
@@ -100,51 +90,64 @@ export default function Navbar({
                     {/* Dropdown Menu */}
                     {isOpenDropdown && (
                       <div className="absolute top-full left-0 w-64 bg-neutral-950 border border-neutral-800 rounded-xl shadow-2xl p-2.5 mt-0 animate-fade-in z-50">
-                        {isElectrical && (
+                        {isElectrical ? (
                           <>
-                            <button onClick={() => handleNavClick('electrical')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">☀️ Solar Power Installations</div>
+                            <button
+                              onClick={() => handleNavClick('electrical')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                ☀️ Solar Power Installations
+                              </div>
                               <span className="text-xs text-neutral-400">Smart off-grid & hybrid solar</span>
                             </button>
-                            <button onClick={() => handleNavClick('electrical')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">🔌 Domestic & Industrial Wiring</div>
+                            <button
+                              onClick={() => handleNavClick('electrical')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                🔌 Domestic & Industrial Wiring
+                              </div>
                               <span className="text-xs text-neutral-400">Certified electrical solutions</span>
                             </button>
-                            <button onClick={() => handleNavClick('electrical')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">⚙️ Generator Sales & Maintenance</div>
+                            <button
+                              onClick={() => handleNavClick('electrical')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                ⚙️ Generator Sales & Maintenance
+                              </div>
                               <span className="text-xs text-neutral-400">Reliable backup power support</span>
                             </button>
                           </>
-                        )}
-                        {isLogistics && (
+                        ) : (
                           <>
-                            <button onClick={() => handleNavClick('logistics')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">📦 Express Courier Deliveries</div>
+                            <button
+                              onClick={() => handleNavClick('logistics')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                📦 Express Courier Deliveries
+                              </div>
                               <span className="text-xs text-neutral-400">Fast, safe nationwide parcel courier</span>
                             </button>
-                            <button onClick={() => handleNavClick('logistics')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">🚛 Cargo Freight Services</div>
+                            <button
+                              onClick={() => handleNavClick('logistics')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                🚛 Cargo Freight Services
+                              </div>
                               <span className="text-xs text-neutral-400">Heavy equipment & bulk hauling</span>
                             </button>
-                            <button onClick={() => handleNavClick('logistics')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">🏬 Warehousing & Supply Chain</div>
+                            <button
+                              onClick={() => handleNavClick('logistics')}
+                              className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition"
+                            >
+                              <div className="font-bold text-white flex items-center gap-1.5">
+                                🏬 Warehousing & Supply Chain
+                              </div>
                               <span className="text-xs text-neutral-400">Secure storage hubs in major cities</span>
-                            </button>
-                          </>
-                        )}
-                        {isMicro && (
-                          <>
-                            <button onClick={() => handleNavClick('microfinance')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">🏦 Personal & Payday Loans</div>
-                              <span className="text-xs text-neutral-400">Fast cash for life emergencies</span>
-                            </button>
-                            <button onClick={() => handleNavClick('microfinance')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">📈 SME Business Capital</div>
-                              <span className="text-xs text-neutral-400">Growth funding for entrepreneurs</span>
-                            </button>
-                            <button onClick={() => handleNavClick('microfinance')} className="w-full text-left p-2.5 hover:bg-neutral-900 rounded-lg text-sm text-neutral-300 hover:text-white transition">
-                              <div className="font-bold text-white flex items-center gap-1.5">🛡️ Financial Advisory</div>
-                              <span className="text-xs text-neutral-400">Smart debt management support</span>
                             </button>
                           </>
                         )}
@@ -173,15 +176,7 @@ export default function Navbar({
           </div>
 
           {/* Right Action Actions */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Search Button */}
-            <button
-              onClick={onSearchClick}
-              className="p-2 text-neutral-400 hover:text-white bg-neutral-950 border border-neutral-800 rounded-xl transition hover:border-neutral-700"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-
+          <div className="hidden xl:flex items-center gap-4">
             {/* Cart Button */}
             <button
               onClick={onCartClick}
@@ -195,44 +190,17 @@ export default function Navbar({
               )}
             </button>
 
-            {/* Client Account - Only visible in Shop or if already logged in */}
-            {(activeTab === 'shop' || currentUser) && (
-              <button
-                onClick={onAccountClick}
-                className="flex items-center gap-2 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-xs font-bold text-white rounded-xl border border-neutral-800 transition duration-200"
-              >
-                {currentUser ? (
-                  <>
-                    <div className="w-5 h-5 bg-blue-600 rounded-lg flex items-center justify-center text-[10px] font-black uppercase">{currentUser.name.charAt(0)}</div>
-                    <span className="truncate max-w-[80px]">{currentUser.name}</span>
-                  </>
-                ) : (
-                  <>
-                    <User className="w-4 h-4 text-blue-500" />
-                    <span>Client Login</span>
-                  </>
-                )}
-              </button>
-            )}
-
             {/* Get A Quote CTA */}
             <button
               onClick={onQuoteClick}
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white rounded-xl shadow-lg shadow-blue-500/20 hover:scale-[1.02] transition duration-200"
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-sm font-bold text-white rounded-md shadow-lg shadow-blue-900/40 transition duration-200 hover:scale-[1.02]"
             >
               Get A Quote
             </button>
           </div>
 
           {/* Mobile Actions and Hamburger */}
-          <div className="flex items-center gap-3 lg:hidden">
-            {/* Search on Mobile */}
-            <button
-              onClick={onSearchClick}
-              className="p-2 text-neutral-400 hover:text-white bg-neutral-950 border border-neutral-800 rounded-xl"
-            >
-              <Search className="w-5 h-5" />
-            </button>
+          <div className="flex items-center gap-3 xl:hidden">
             {/* Cart on Mobile */}
             <button
               onClick={onCartClick}
@@ -260,7 +228,7 @@ export default function Navbar({
 
       {/* Mobile Menu Panel */}
       {isOpen && (
-        <div className="lg:hidden border-t border-neutral-900 bg-neutral-950 px-4 py-6 space-y-4 animate-fade-in">
+        <div className="xl:hidden border-t border-neutral-900 bg-neutral-950 px-4 py-6 space-y-4 animate-fade-in">
           <div className="flex flex-col gap-3">
             {navItems.map((item) => (
               <button
@@ -277,24 +245,13 @@ export default function Navbar({
             ))}
           </div>
 
-          <div className="pt-4 border-t border-neutral-900 space-y-3">
-            {(activeTab === 'shop' || currentUser) && (
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  onAccountClick();
-                }}
-                className="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-sm font-bold text-white rounded-xl border border-neutral-800 text-center transition flex items-center justify-center gap-2"
-              >
-                {currentUser ? <><User className="w-4 h-4 text-blue-500" /> My Account</> : <><User className="w-4 h-4 text-blue-500" /> Client Portal</>}
-              </button>
-            )}
+          <div className="pt-4 border-t border-neutral-900">
             <button
               onClick={() => {
                 setIsOpen(false);
                 onQuoteClick();
               }}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white rounded-xl shadow-lg shadow-blue-500/20 text-center transition"
+              className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-sm font-semibold text-white rounded-md shadow-lg shadow-blue-900/40 text-center transition"
             >
               Get A Quote
             </button>
