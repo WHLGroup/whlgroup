@@ -31,6 +31,7 @@ export default function App() {
   // Central Dynamic Data State
   const [orders, setOrders] = useState<any[]>([]);
   const [quotes, setQuotes] = useState<any[]>([]);
+  const [loans, setLoans] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]); 
   const [projects, setProjects] = useState<any[]>([]);
   const [leadership, setLeadership] = useState<any[]>([]); 
@@ -60,6 +61,9 @@ export default function App() {
 
       const { data: qts } = await supabase.from('quotes').select('*');
       if (qts) setQuotes(qts);
+
+      const { data: lns } = await supabase.from('loans').select('*');
+      if (lns) setLoans(lns);
     };
     fetchData();
   }, []);
@@ -126,6 +130,10 @@ export default function App() {
     const { error } = await supabase.from('quotes').insert([quote]);
     if (!error) setQuotes(prev => [quote, ...prev]);
   };
+  const handleAddLoan = async (loan: any) => {
+    const { error } = await supabase.from('loans').insert([loan]);
+    if (!error) setLoans(prev => [loan, ...prev]);
+  };
   const handleUpdateOrderStatus = async (id: string, status: string) => {
     const { error } = await supabase.from('orders').update({ status }).eq('id', id);
     if (!error) setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
@@ -133,6 +141,10 @@ export default function App() {
   const handleUpdateQuoteStatus = async (id: string, status: string) => {
     const { error } = await supabase.from('quotes').update({ status }).eq('id', id);
     if (!error) setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
+  };
+  const handleUpdateLoanStatus = async (id: string, status: string) => {
+    const { error } = await supabase.from('loans').update({ status }).eq('id', id);
+    if (!error) setLoans(prev => prev.map(l => l.id === id ? { ...l, status } : l));
   };
 
   // Auto-scroll to top
@@ -275,12 +287,14 @@ export default function App() {
         onClose={() => setIsAdminOpen(false)} 
         orders={orders}
         quotes={quotes}
+        loans={loans}
         certificates={certificates}
         onAddCert={handleAddCertificate}
         onRemoveCert={handleRemoveCertificate}
         onEditCert={handleEditCertificate}
         onUpdateOrderStatus={handleUpdateOrderStatus}
         onUpdateQuoteStatus={handleUpdateQuoteStatus}
+        onUpdateLoanStatus={handleUpdateLoanStatus}
         products={products}
         onAddProduct={handleAddProduct}
         onRemoveProduct={handleRemoveProduct}
@@ -315,6 +329,7 @@ export default function App() {
         isOpen={isQuoteOpen} 
         onClose={() => setIsQuoteOpen(false)} 
         onQuoteSubmit={handleAddQuote}
+        onLoanSubmit={handleAddLoan}
       />
       
       <CartDrawer

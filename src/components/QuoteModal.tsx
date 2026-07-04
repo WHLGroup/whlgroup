@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { X, ArrowRight, ArrowLeft, Shield, Send, CheckCircle } from 'lucide-react';
 import { getFlagFromCode } from '../utils/flags';
+import { submitToGoogleSheets } from '../utils/googleSheets';
 
 interface QuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onQuoteSubmit: (quote: any) => void;
+  onLoanSubmit: (loan: any) => void;
 }
 
-export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModalProps) {
+export default function QuoteModal({ isOpen, onClose, onQuoteSubmit, onLoanSubmit }: QuoteModalProps) {
   const [step, setStep] = useState(1);
   const [serviceType, setServiceType] = useState<'electrical' | 'logistics' | 'microfinance' | ''>('');
   const districts = [
@@ -73,19 +75,36 @@ export default function QuoteModal({ isOpen, onClose, onQuoteSubmit }: QuoteModa
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    const submissionData = {
+      id: `QT-${Math.floor(100 + Math.random() * 900)}`,
+      customer: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      service: serviceType === 'electrical' ? 'Electrical' : serviceType === 'logistics' ? 'Logistics' : 'Microfinance',
+      date: new Date().toLocaleString(),
+      status: 'New',
+      details: {
+        idNumber: formData.idNumber,
+        employment: formData.employmentNumber,
+        loanAmount: formData.loanAmount,
+        loanType: formData.loanType,
+        witness: `${formData.witnessName} (${formData.witnessPhone})`
+      }
+    };
+
+    // If it's a microfinance request, send it to Google Sheets
+    if (serviceType === 'microfinance') {
+      await submitToGoogleSheets(submissionData);
+      onLoanSubmit(submissionData);
+    } else {
+      onQuoteSubmit(submissionData);
+    }
+    
     setTimeout(() => {
-      onQuoteSubmit({
-        id: `QT-${Math.floor(100 + Math.random() * 900)}`,
-        customer: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        service: serviceType === 'electrical' ? 'Electrical' : serviceType === 'logistics' ? 'Logistics' : 'Microfinance',
-        date: new Date().toLocaleString(),
-        status: 'New'
-      });
       setIsSubmitting(false);
       setSubmitted(true);
     }, 1200);

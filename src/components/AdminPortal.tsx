@@ -14,7 +14,9 @@ import {
   MessageSquareQuote,
   Users,
   Download,
-  Loader2
+  Loader2,
+  Landmark,
+  ExternalLink
 } from 'lucide-react';
 import { uploadFile } from '../lib/supabase';
 
@@ -23,12 +25,14 @@ interface AdminPortalProps {
   onClose: () => void;
   orders: any[];
   quotes: any[];
+  loans: any[];
   certificates: any[];
   onAddCert: (cert: any) => void;
   onRemoveCert: (id: string) => void;
   onEditCert: (cert: any) => void;
   onUpdateOrderStatus: (id: string, status: string) => void;
   onUpdateQuoteStatus: (id: string, status: string) => void;
+  onUpdateLoanStatus: (id: string, status: string) => void;
   products: any[];
   onAddProduct: (p: any) => void;
   onRemoveProduct: (id: string) => void;
@@ -46,7 +50,7 @@ interface AdminPortalProps {
 /**
  * Reusable Image Upload Component for the Admin Forms
  */
-const ImageUploadField = ({ onUpload, label, folder }: { onUpload: (url: string) => void, label: string, folder: string }) => {
+const ImageUploadField = ({ onUpload, label, folder, value }: { onUpload: (url: string) => void, label: string, folder: string, value: string }) => {
   const [uploading, setUploading] = useState(false);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,27 +62,30 @@ const ImageUploadField = ({ onUpload, label, folder }: { onUpload: (url: string)
     setUploading(false);
 
     if (url) onUpload(url);
-    else alert('Upload failed. Check console.');
+    else alert('Upload failed. Please ensure your Supabase bucket "whl-assets" is created and public.');
   };
 
   return (
     <div className="space-y-2">
       <label className="text-[10px] uppercase font-bold text-neutral-500">{label}</label>
-      <div className="relative h-12 bg-black border border-neutral-800 rounded-xl overflow-hidden group hover:border-blue-500 transition-all flex items-center px-4">
-        {uploading ? (
-          <div className="flex items-center gap-2 text-blue-500">
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Uploading to Cloud...</span>
-          </div>
-        ) : (
-          <>
-            <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
-            <div className="flex items-center gap-2 text-neutral-400 group-hover:text-white transition-colors">
-              <Plus className="w-4 h-4" />
-              <span className="text-[10px] font-bold uppercase tracking-widest">Upload Image Asset</span>
-            </div>
-          </>
-        )}
+      <div className="flex gap-2">
+        <div className="relative h-11 bg-black border border-neutral-800 rounded-xl overflow-hidden group hover:border-blue-500 transition-all flex items-center px-3 shrink-0">
+          {uploading ? (
+            <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+          ) : (
+            <>
+              <input type="file" onChange={handleFileChange} className="absolute inset-0 opacity-0 cursor-pointer z-10" />
+              <Plus className="w-4 h-4 text-neutral-400 group-hover:text-white transition-colors" />
+            </>
+          )}
+        </div>
+        <input 
+          type="text" 
+          placeholder="Or paste URL here..."
+          value={value}
+          onChange={(e) => onUpload(e.target.value)}
+          className="flex-1 bg-black border border-neutral-800 rounded-xl px-4 py-2 text-xs text-white focus:border-blue-500 outline-none"
+        />
       </div>
     </div>
   );
@@ -86,13 +93,13 @@ const ImageUploadField = ({ onUpload, label, folder }: { onUpload: (url: string)
 
 export default function AdminPortal({ 
   isOpen, onClose, 
-  orders = [], quotes = [], certificates = [], onAddCert, onRemoveCert, onEditCert, onUpdateOrderStatus, onUpdateQuoteStatus,
+  orders = [], quotes = [], loans = [], certificates = [], onAddCert, onRemoveCert, onEditCert, onUpdateOrderStatus, onUpdateQuoteStatus, onUpdateLoanStatus,
   products = [], onAddProduct, onRemoveProduct,
   projects = [], onAddProject, onRemoveProject,
   testimonials = [], onApproveTestimonial, onRemoveTestimonial,
   leadership = [], onAddLeadership, onRemoveLeadership
 }: AdminPortalProps) {
-  const [activeTab, setActiveTab] = useState<'orders' | 'quotes' | 'inventory' | 'certificates' | 'projects' | 'feedback' | 'leadership'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'quotes' | 'loans' | 'inventory' | 'certificates' | 'projects' | 'feedback' | 'leadership'>('orders');
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginError, setLoginError] = useState('');
@@ -166,6 +173,7 @@ export default function AdminPortal({
         <nav className="flex-1 p-4 space-y-1">
           {[
             { id: 'orders', label: 'Orders & POP', icon: ShoppingBag },
+            { id: 'loans', label: 'Loan Desk', icon: Landmark },
             { id: 'quotes', label: 'Service Quotes', icon: FileText },
             { id: 'inventory', label: 'Shop Inventory', icon: Package },
             { id: 'projects', label: 'Projects Hub', icon: LayoutGrid },
@@ -254,6 +262,71 @@ export default function AdminPortal({
             </div>
           )}
 
+          {/* LOANS TAB */}
+          {activeTab === 'loans' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                 <div>
+                    <h3 className="text-xl font-black uppercase tracking-widest text-white">Loan Management Desk</h3>
+                    <p className="text-xs text-neutral-500 font-bold uppercase mt-1">Pending, Approved & Active Credits</p>
+                 </div>
+                 <a 
+                  href="https://docs.google.com/spreadsheets/d/1R6Re_5CvkqrsiRyC9fGEBdoxGZ0ab-GqohCTqta8ZJo/edit?gid=0#gid=0"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-2 px-6 py-3 bg-neutral-900 border border-neutral-800 hover:border-blue-500/50 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl group"
+                 >
+                   <ExternalLink className="w-4 h-4 text-blue-500" />
+                   View Master Google Sheet
+                 </a>
+              </div>
+
+              <div className="bg-neutral-900 border border-neutral-800 rounded-3xl overflow-hidden shadow-2xl">
+                 <table className="w-full text-left text-sm whitespace-nowrap">
+                    <thead className="bg-neutral-800/50 border-b border-neutral-800">
+                      <tr><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Applicant</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">ID / Employment</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Amount</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500">Status</th><th className="px-6 py-5 text-[10px] uppercase font-bold text-neutral-500 text-center">Approve</th></tr>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-800/50">
+                      {loans.length === 0 ? (
+                        <tr><td colSpan={5} className="px-6 py-20 text-center text-neutral-600 font-bold italic">No active loan requests.</td></tr>
+                      ) : (
+                        loans.map(ln => (
+                          <tr key={ln.id} className="hover:bg-blue-600/5 transition-colors">
+                            <td className="px-6 py-4 font-bold text-white">{ln.customer}</td>
+                            <td className="px-6 py-4 text-neutral-400 text-xs">{ln.details?.idNumber || 'N/A'}</td>
+                            <td className="px-6 py-4 font-black text-emerald-500">MWK {ln.details?.loanAmount?.toLocaleString()}</td>
+                            <td className="px-6 py-4">
+                               <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${ln.status === 'Approved' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' : ln.status === 'Active' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
+                                  {ln.status}
+                               </span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                               {ln.status === 'New' && (
+                                 <button 
+                                  onClick={() => onUpdateLoanStatus(ln.id, 'Approved')}
+                                  className="px-4 py-2 bg-blue-600 rounded-xl text-[10px] font-black uppercase hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20"
+                                 >
+                                   Approve
+                                 </button>
+                               )}
+                               {ln.status === 'Approved' && (
+                                 <button 
+                                  onClick={() => onUpdateLoanStatus(ln.id, 'Active')}
+                                  className="px-4 py-2 bg-emerald-600 rounded-xl text-[10px] font-black uppercase hover:bg-emerald-700 transition-all shadow-lg"
+                                 >
+                                   Disburse
+                                 </button>
+                               )}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                 </table>
+              </div>
+            </div>
+          )}
+
           {/* INVENTORY TAB */}
           {activeTab === 'inventory' && (
             <div className="space-y-6 animate-fade-in">
@@ -267,7 +340,7 @@ export default function AdminPortal({
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                      <input type="text" placeholder="Name" value={newProduct.name} onChange={e => setNewProduct({...newProduct, name: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
                      <input type="number" placeholder="Price (USD)" value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: Number(e.target.value)})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
-                     <ImageUploadField label="Product Image" folder="shop" onUpload={(url) => setNewProduct({...newProduct, image: url})} />
+                     <ImageUploadField label="Product Image" folder="shop" value={newProduct.image} onUpload={(url) => setNewProduct({...newProduct, image: url})} />
                      <select value={newProduct.category} onChange={e => setNewProduct({...newProduct, category: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none h-[48px] self-end">
                         <option>Solar Power</option><option>Wiring & Cables</option><option>Power Accessories</option><option>Safety Gear</option>
                      </select>
@@ -310,7 +383,7 @@ export default function AdminPortal({
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <input type="text" placeholder="Title" value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
                       <input type="text" placeholder="Location" value={newProject.location} onChange={e => setNewProject({...newProject, location: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
-                      <ImageUploadField label="Case Study Cover" folder="projects" onUpload={(url) => setNewProject({...newProject, image: url})} />
+                      <ImageUploadField label="Case Study Cover" folder="projects" value={newProject.image} onUpload={(url) => setNewProject({...newProject, image: url})} />
                       <input type="text" placeholder="Date (e.g. June 2026)" value={newProject.date} onChange={e => setNewProject({...newProject, date: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none self-end h-[48px]" />
                       <div className="md:col-span-2">
                         <textarea placeholder="Technical Project Summary & Impact..." value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-2xl px-5 py-4 text-xs text-white h-32 outline-none resize-none focus:border-blue-500" />
@@ -357,7 +430,13 @@ export default function AdminPortal({
                       <input type="date" value={newCert.issued} onChange={e => setNewCert({...newCert, issued: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
                       <input type="date" value={newCert.expiry} onChange={e => setNewCert({...newCert, expiry: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white focus:border-blue-500 outline-none" />
                       <div className="md:col-span-2">
-                        <ImageUploadField label="Official License Image" folder="compliance" onUpload={(url) => setNewCert({...newCert, imageUrl: url})} />
+                        <ImageUploadField 
+                          label="Official License Image" 
+                          folder="certificates" 
+                          value={newCert.imageUrl} 
+                          onUpload={(url) => setNewCert({...newCert, imageUrl: url})} 
+                        />
+                        <p className="text-[9px] text-neutral-600 mt-1 italic">Suggested: /images/certificates/filename.jpg</p>
                       </div>
                    </div>
                    <button onClick={() => { if (editingCertId) { onEditCert({...newCert, id: editingCertId, status: 'Active'}); } else { onAddCert({...newCert, id: Date.now().toString(), status: 'Active'}); } setIsAddingCert(false); setEditingCertId(null); setNewCert({ title: '', type: '', issued: '', expiry: '', imageUrl: '' }); }} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase shadow-lg shadow-blue-600/30">Save Compliance</button>
@@ -415,7 +494,7 @@ export default function AdminPortal({
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <input type="text" placeholder="Full Name" value={newMember.name} onChange={e => setNewMember({...newMember, name: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none focus:border-blue-500" />
                       <input type="text" placeholder="Role" value={newMember.role} onChange={e => setNewMember({...newMember, role: e.target.value})} className="bg-black border border-neutral-800 rounded-2xl px-5 py-3 text-xs text-white outline-none focus:border-blue-500" />
-                      <ImageUploadField label="Leader Portrait" folder="team" onUpload={(url) => setNewMember({...newMember, image: url})} />
+                      <ImageUploadField label="Leader Portrait" folder="team" value={newMember.image} onUpload={(url) => setNewMember({...newMember, image: url})} />
                       <div className="md:col-span-2"><textarea placeholder="Professional Bio & Background..." value={newMember.bio} onChange={e => setNewMember({...newMember, bio: e.target.value})} className="w-full bg-black border border-neutral-800 rounded-2xl px-5 py-4 text-xs text-white h-32 resize-none outline-none focus:border-blue-500" /></div>
                    </div>
                    <button onClick={() => {onAddLeadership({...newMember, id: Date.now().toString()}); setIsAddingMember(false); setNewMember({ name: '', role: '', image: '', bio: '' });}} className="w-full py-4 bg-blue-600 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl transition-all">Commit to Board</button>
